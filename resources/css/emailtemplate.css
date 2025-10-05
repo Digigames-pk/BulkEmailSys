@@ -1,0 +1,507 @@
+/* Email Template Styles - Laravel Theme with Dark/Light Mode Support */
+
+/* Template Grid */
+.template-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+/* Template Card */
+.templateCard {
+    transition: all 0.3s ease;
+    border: 1px solid rgb(229 231 235);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background: white;
+    box-shadow:
+        0 1px 3px 0 rgb(0 0 0 / 0.1),
+        0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.dark .templateCard {
+    background: rgb(31 41 55);
+    border-color: rgb(75 85 99);
+    box-shadow:
+        0 1px 3px 0 rgb(0 0 0 / 0.3),
+        0 1px 2px -1px rgb(0 0 0 / 0.3);
+}
+
+.templateCard:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 10px 25px -3px rgb(0 0 0 / 0.1),
+        0 4px 6px -2px rgb(0 0 0 / 0.05);
+}
+
+.dark .templateCard:hover {
+    box-shadow:
+        0 10px 25px -3px rgb(0 0 0 / 0.4),
+        0 4px 6px -2px rgb(0 0 0 / 0.2);
+}
+
+/* Card Header */
+.card-header {
+    padding: 1rem;
+    font-weight: 600;
+    color: rgb(55 65 81);
+    background: rgb(249 250 251);
+    border-bottom: 1px solid rgb(229 231 235);
+}
+
+.dark .card-header {
+    color: rgb(209 213 219);
+    background: rgb(55 65 81);
+    border-bottom-color: rgb(75 85 99);
+}
+
+/* Card Body */
+.card-body {
+    padding: 0;
+    position: relative;
+}
+
+/* Template Image Wrapper */
+.templateImageWrapper {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.templateImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.templateCard:hover .templateImage {
+    transform: scale(1.05);
+}
+
+/* Hover Buttons */
+.hoverButtons {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    gap: 0.75rem;
+}
+
+.templateCard:hover .hoverButtons {
+    opacity: 1;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    min-width: 100px;
+}
+
+.btn:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px rgb(59 130 246);
+}
+
+/* Button Variants */
+.btn-outline-light {
+    color: white;
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-outline-light:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.btn-primary {
+    background: rgb(59 130 246);
+    color: white;
+    border-color: rgb(59 130 246);
+}
+
+.btn-primary:hover {
+    background: rgb(37 99 235);
+    border-color: rgb(37 99 235);
+}
+
+.dark .btn-primary {
+    background: rgb(96 165 250);
+    border-color: rgb(96 165 250);
+}
+
+.dark .btn-primary:hover {
+    background: rgb(59 130 246);
+    border-color: rgb(59 130 246);
+}
+
+.btn-danger {
+    background: rgb(239 68 68);
+    color: white;
+    border-color: rgb(239 68 68);
+}
+
+.btn-danger:hover {
+    background: rgb(220 38 38);
+    border-color: rgb(220 38 38);
+}
+
+.dark .btn-danger {
+    background: rgb(248 113 113);
+    border-color: rgb(248 113 113);
+}
+
+.dark .btn-danger:hover {
+    background: rgb(239 68 68);
+    border-color: rgb(239 68 68);
+}
+
+.btn-secondary {
+    background: rgb(107 114 128);
+    color: white;
+    border-color: rgb(107 114 128);
+}
+
+.btn-secondary:hover {
+    background: rgb(75 85 99);
+    border-color: rgb(75 85 99);
+}
+
+.dark .btn-secondary {
+    background: rgb(156 163 175);
+    border-color: rgb(156 163 175);
+}
+
+.dark .btn-secondary:hover {
+    background: rgb(107 114 128);
+    border-color: rgb(107 114 128);
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgb(55 65 81);
+    margin-bottom: 0.5rem;
+}
+
+.dark .form-label {
+    color: rgb(209 213 219);
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid rgb(209 213 219);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    background: white;
+    color: rgb(17 24 39);
+    transition: all 0.2s ease;
+}
+
+.dark .form-input {
+    background: rgb(31 41 55);
+    border-color: rgb(75 85 99);
+    color: rgb(209 213 219);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: rgb(59 130 246);
+    box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+}
+
+.dark .form-input:focus {
+    border-color: rgb(96 165 250);
+    box-shadow: 0 0 0 3px rgb(96 165 250 / 0.1);
+}
+
+.form-error {
+    color: rgb(239 68 68);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.dark .form-error {
+    color: rgb(248 113 113);
+}
+
+/* File Input */
+.file-input-wrapper {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.file-input {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.file-input-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    background: rgb(249 250 251);
+    border: 2px dashed rgb(209 213 219);
+    border-radius: 0.5rem;
+    color: rgb(107 114 128);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    min-height: 120px;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.dark .file-input-label {
+    background: rgb(55 65 81);
+    border-color: rgb(75 85 99);
+    color: rgb(156 163 175);
+}
+
+.file-input-label:hover {
+    background: rgb(243 244 246);
+    border-color: rgb(156 163 175);
+}
+
+.dark .file-input-label:hover {
+    background: rgb(75 85 99);
+    border-color: rgb(107 114 128);
+}
+
+/* Preview Image */
+.preview-image {
+    max-width: 200px;
+    max-height: 120px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    border: 1px solid rgb(209 213 219);
+}
+
+.dark .preview-image {
+    border-color: rgb(75 85 99);
+}
+
+/* Loading States */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: rgb(107 114 128);
+}
+
+.dark .empty-state {
+    color: rgb(156 163 175);
+}
+
+.empty-state-icon {
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto 1rem;
+    color: rgb(209 213 219);
+}
+
+.dark .empty-state-icon {
+    color: rgb(75 85 99);
+}
+
+/* Alert Styles */
+.alert {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+}
+
+.alert-success {
+    background: rgb(240 253 244);
+    border-color: rgb(34 197 94);
+    color: rgb(22 101 52);
+}
+
+.dark .alert-success {
+    background: rgb(20 83 45);
+    border-color: rgb(34 197 94);
+    color: rgb(134 239 172);
+}
+
+.alert-error {
+    background: rgb(254 242 242);
+    border-color: rgb(239 68 68);
+    color: rgb(153 27 27);
+}
+
+.dark .alert-error {
+    background: rgb(127 29 29);
+    border-color: rgb(239 68 68);
+    color: rgb(252 165 165);
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+    .template-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .templateCard {
+        margin: 0 0.5rem;
+    }
+
+    .hoverButtons {
+        gap: 0.5rem;
+    }
+
+    .btn {
+        min-width: 80px;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Email Editor Container */
+.email-editor-container {
+    border: 1px solid rgb(209 213 219);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background: white;
+}
+
+.dark .email-editor-container {
+    border-color: rgb(75 85 99);
+    background: rgb(31 41 55);
+}
+
+/* Action Buttons Container */
+.action-buttons {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgb(229 231 235);
+}
+
+.dark .action-buttons {
+    border-top-color: rgb(75 85 99);
+}
+
+/* Page Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgb(229 231 235);
+}
+
+.dark .page-header {
+    border-bottom-color: rgb(75 85 99);
+}
+
+.page-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: rgb(17 24 39);
+    margin: 0;
+}
+
+.dark .page-title {
+    color: rgb(243 244 246);
+}
+
+/* Utility Classes */
+.text-muted {
+    color: rgb(107 114 128);
+}
+
+.dark .text-muted {
+    color: rgb(156 163 175);
+}
+
+.bg-white {
+    background: white;
+}
+
+.dark .bg-white {
+    background: rgb(31 41 55);
+}
+
+.border {
+    border: 1px solid rgb(229 231 235);
+}
+
+.dark .border {
+    border-color: rgb(75 85 99);
+}
+
+.rounded {
+    border-radius: 0.5rem;
+}
+
+.shadow {
+    box-shadow:
+        0 1px 3px 0 rgb(0 0 0 / 0.1),
+        0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.dark .shadow {
+    box-shadow:
+        0 1px 3px 0 rgb(0 0 0 / 0.3),
+        0 1px 2px -1px rgb(0 0 0 / 0.3);
+}

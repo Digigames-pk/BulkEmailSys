@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Test FormData API</title>
+    </head>
+    <body>
+        <h1>Test FormData API Submission</h1>
+        <form id="testForm">
+            <div>
+                <label>Name:</label>
+                <input
+                    type="text"
+                    id="name"
+                    value="Test FormData Name"
+                    required
+                />
+            </div>
+            <div>
+                <label>Email Subject:</label>
+                <input type="text" id="email_subject" value="Test Subject" />
+            </div>
+            <div>
+                <label>Editor Content:</label>
+                <textarea id="editor_content">
+{"design": {"body": {"rows": []}}}</textarea
+                >
+            </div>
+            <div>
+                <label>Mail Content:</label>
+                <textarea id="mail_content">
+<html><body><h1>Test Email</h1></body></html></textarea
+                >
+            </div>
+            <button type="button" onclick="testFormData()">
+                Test FormData Submission
+            </button>
+        </form>
+
+        <div id="result"></div>
+
+        <script>
+            async function testFormData() {
+                const formData = new FormData();
+                formData.append('_method', 'PUT');
+                formData.append('name', document.getElementById('name').value);
+                formData.append(
+                    'email_subject',
+                    document.getElementById('email_subject').value,
+                );
+                formData.append(
+                    'editor_content',
+                    document.getElementById('editor_content').value,
+                );
+                formData.append(
+                    'mail_content',
+                    document.getElementById('mail_content').value,
+                );
+
+                console.log('FormData contents:');
+                for (let [key, value] of formData.entries()) {
+                    console.log(key, value);
+                }
+
+                try {
+                    const response = await fetch('/api/email-templates/3', {
+                        method: 'POST',
+                        headers: {
+                            Accept: 'application/json',
+                        },
+                        body: formData,
+                    });
+
+                    const result = await response.json();
+
+                    document.getElementById('result').innerHTML = `
+                    <h3>Response:</h3>
+                    <p><strong>Status:</strong> ${response.status}</p>
+                    <p><strong>Success:</strong> ${result.success}</p>
+                    <p><strong>Message:</strong> ${result.message || 'No message'}</p>
+                    <pre>${JSON.stringify(result, null, 2)}</pre>
+                `;
+                } catch (error) {
+                    document.getElementById('result').innerHTML = `
+                    <h3>Error:</h3>
+                    <p>${error.message}</p>
+                `;
+                }
+            }
+        </script>
+    </body>
+</html>
