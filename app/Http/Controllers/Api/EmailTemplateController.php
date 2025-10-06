@@ -36,7 +36,7 @@ class EmailTemplateController extends Controller
                 'name' => 'required|string|max:255',
                 'email_subject' => 'nullable|string|max:255',
                 'csv_file' => 'nullable|file', // 10MB max for CSV files
-                'editor_content' => 'nullable|string',
+                'editor_content' => 'nullable|json',
                 'mail_content' => 'nullable|string',
                 'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
@@ -101,7 +101,7 @@ class EmailTemplateController extends Controller
                 'name' => 'required|string|max:255',
                 'email_subject' => 'nullable|string|max:255',
                 'csv_file' => 'nullable|file', // 10MB max for CSV files
-                'editor_content' => 'nullable|string',
+                'editor_content' => 'nullable|json',
                 'mail_content' => 'nullable|string',
                 'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);

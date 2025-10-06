@@ -79,13 +79,13 @@ const Edit = ({ emailTemplate }: Props) => {
             const html = await new Promise<string>((resolve) =>
                 emailEditorRef.current?.editor?.exportHtml((data: { html: string }) => resolve(data.html))
             );
-
+            const encodedHtml = btoa(unescape(encodeURIComponent(html)));
+            const encodedMailContent = btoa(unescape(encodeURIComponent(JSON.stringify(design))));
             const formData = new FormData();
-            formData.append('_method', 'PUT'); // Laravel method spoofing
             formData.append('name', name);
             formData.append('email_subject', emailSubject);
-            formData.append('editor_content', JSON.stringify(design));
-            formData.append('mail_content', html);
+            formData.append('editor_content', encodedMailContent);
+            formData.append('mail_content', encodedHtml);
 
             if (thumbnail) formData.append('thumbnail', thumbnail);
             if (csvFile) formData.append('csv_file', csvFile);

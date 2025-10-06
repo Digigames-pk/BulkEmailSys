@@ -44,12 +44,13 @@ const Create = () => {
             const html: string = await new Promise((resolve) => {
                 emailEditorRef.current?.editor?.exportHtml((data: { html: string }) => resolve(data.html));
             });
-
+            const encodedHtml = btoa(unescape(encodeURIComponent(html)));
+            const encodedMailContent = btoa(unescape(encodeURIComponent(JSON.stringify(design))));
             const formData = new FormData();
             formData.append('name', data.name);
             formData.append('email_subject', data.email_subject || '');
-            formData.append('editor_content', JSON.stringify(design));
-            formData.append('mail_content', html);
+            formData.append('editor_content', encodedMailContent);
+            formData.append('mail_content', encodedHtml);
             if (data.thumbnail) {
                 formData.append('thumbnail', data.thumbnail);
             }
