@@ -36,7 +36,7 @@ class EmailTemplateController extends Controller
                 'name' => 'required|string|max:255',
                 'email_subject' => 'nullable|string|max:255',
                 'csv_file' => 'nullable|file', // 10MB max for CSV files
-                'editor_content' => 'nullable|json',
+                'editor_content' => 'nullable|string',
                 'mail_content' => 'nullable|string',
                 'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
@@ -44,6 +44,9 @@ class EmailTemplateController extends Controller
             $data = $request->all();
             // Set user_id to 1 as default since we're removing authentication
             $data['user_id'] = 1;
+
+            $data['editor_content'] = base64_decode($data['editor_content'] ?? '');
+            $data['mail_content'] = base64_decode($data['mail_content'] ?? '');
 
             if ($request->hasFile('thumbnail')) {
                 $data['thumbnail'] = $request->file('thumbnail')->store('email-templates', 'public');
@@ -107,7 +110,8 @@ class EmailTemplateController extends Controller
             ]);
 
             $data = $request->all();
-
+            $data['editor_content'] = base64_decode($data['editor_content'] ?? '');
+            $data['mail_content'] = base64_decode($data['mail_content'] ?? '');
             if ($request->hasFile('thumbnail')) {
                 // Delete old thumbnail
                 if ($emailTemplate->thumbnail) {
