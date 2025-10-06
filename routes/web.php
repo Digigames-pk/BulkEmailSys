@@ -8,8 +8,20 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\LogsController;
 
 Route::get('/', function () {
-    return Inertia::render('welcome');
+    return Inertia::render('landing');
 })->name('home');
+
+Route::get('/about', function () {
+    return Inertia::render('AboutUs');
+})->name('about');
+
+Route::get('/privacy', function () {
+    return Inertia::render('PrivacyPolicy');
+})->name('privacy');
+
+Route::get('/terms', function () {
+    return Inertia::render('TermsAndConditions');
+})->name('terms');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
@@ -32,6 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Logs
     Route::get('logs', [LogsController::class, 'index'])->name('logs.index');
 });
+
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

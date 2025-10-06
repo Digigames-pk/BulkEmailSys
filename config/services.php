@@ -35,4 +35,6 @@ return [
         ],
     ],
 
+    // Mailchimp removed as per request
+
 ];
