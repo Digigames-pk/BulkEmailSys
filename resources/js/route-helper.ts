@@ -22,6 +22,18 @@ import {
     view as baseTemplateView
 } from './routes/base/template';
 import useRoutes from './routes/use';
+import {
+    index as groupsIndex,
+    create as groupsCreate,
+    store as groupsStore,
+    show as groupsShow,
+    edit as groupsEdit,
+    update as groupsUpdate,
+    destroy as groupsDestroy,
+    addContacts as groupsAddContacts,
+    removeContacts as groupsRemoveContacts,
+    availableContacts as groupsAvailableContacts
+} from './routes/groups';
 
 // Route name to function mapping
 const routeMap: Record<string, any> = {
@@ -45,6 +57,18 @@ const routeMap: Record<string, any> = {
     'base.template': baseTemplateIndex,
     'base.template.view': baseTemplateView,
     'use.template': useRoutes.template,
+
+    // Groups routes
+    'groups.index': groupsIndex,
+    'groups.create': groupsCreate,
+    'groups.store': groupsStore,
+    'groups.show': groupsShow,
+    'groups.edit': groupsEdit,
+    'groups.update': groupsUpdate,
+    'groups.destroy': groupsDestroy,
+    'groups.add-contacts': groupsAddContacts,
+    'groups.remove-contacts': groupsRemoveContacts,
+    'groups.available-contacts': groupsAvailableContacts,
 };
 
 // Global route helper function

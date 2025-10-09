@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Contact extends Model
 {
@@ -33,5 +34,14 @@ class Contact extends Model
     public function emailLogs()
     {
         return $this->hasMany(EmailLog::class);
+    }
+
+    /**
+     * Get the groups that the contact belongs to.
+     */
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(Group::class, 'contact_group')
+            ->withTimestamps();
     }
 }

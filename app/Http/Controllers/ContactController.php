@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
 use App\Models\Contact;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 class ContactController extends Controller
 {
@@ -14,7 +15,7 @@ class ContactController extends Controller
      */
     public function index(Request $request)
     {
-        $contacts = Contact::where('user_id', 1)
+        $contacts = Contact::where('user_id', Auth::id())
             ->where(function ($q) use ($request) {
                 if ($search = $request->get('search')) {
                     $q->where('name', 'like', "%{$search}%")
@@ -42,8 +43,7 @@ class ContactController extends Controller
             'mobile' => ['nullable', 'string', 'max:50'],
             'gender' => ['nullable', 'string', 'max:50'],
         ]);
-
-        $validated['user_id'] = 1;
+        $validated['user_id'] = Auth::id();
         Contact::create($validated);
 
         return redirect()->route('contacts.index')->with('success', 'Contact created successfully.');
@@ -62,7 +62,7 @@ class ContactController extends Controller
             'mobile' => ['nullable', 'string', 'max:50'],
             'gender' => ['nullable', 'string', 'max:50'],
         ]);
-
+        $validated['user_id'] = Auth::id();
         $contact->update($validated);
 
         return redirect()->route('contacts.index')->with('success', 'Contact updated successfully.');

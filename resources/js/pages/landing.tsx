@@ -1,11 +1,14 @@
 import React from 'react';
 import { Head } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 export default function Landing() {
+    const { t } = useTranslation();
 
     return (
         <div className="min-h-screen bg-background text-foreground">
-            <Head title="Welcome to MailNow" />
+            <Head title={t('welcome')} />
             <header className="px-6 py-4 border-b sticky top-0 bg-background/80 backdrop-blur z-10">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -13,15 +16,16 @@ export default function Landing() {
                         <span className="text-xl font-semibold">MailNow</span>
                     </div>
                     <nav className="text-sm flex items-center gap-6">
-                        <a className="hover:underline" href="#features">Features</a>
-                        <a className="hover:underline" href="#how">How it works</a>
-                        <a className="hover:underline" href="/login">Sign in</a>
+                        <a className="hover:underline" href="#features">{t('features')}</a>
+                        <a className="hover:underline" href="#how">{t('how_it_works')}</a>
+                        <a className="hover:underline" href="/login">{t('sign_in')}</a>
+                        <LanguageSwitcher />
                         <button
                             type="button"
                             onClick={() => document.documentElement.classList.toggle('dark')}
                             className="inline-flex items-center rounded border px-3 py-1.5 text-xs"
                         >
-                            Toggle theme
+                            {t('toggle_theme')}
                         </button>
                     </nav>
                 </div>
@@ -30,12 +34,12 @@ export default function Landing() {
             <main className="max-w-7xl mx-auto px-6 py-20">
                 <section className="grid md:grid-cols-2 gap-12 items-center">
                     <div>
-                        <span className="inline-flex items-center rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">All-in-one email platform</span>
-                        <h1 className="mt-4 text-4xl md:text-6xl font-bold leading-tight tracking-tight">Send smarter campaigns with MailNow</h1>
-                        <p className="mt-5 text-muted-foreground text-lg leading-relaxed">Import contacts, design templates, and deliver at scale with reliability powered by Resend.</p>
+                        <span className="inline-flex items-center rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">{t('all_in_one_email')}</span>
+                        <h1 className="mt-4 text-4xl md:text-6xl font-bold leading-tight tracking-tight">{t('send_smarter_campaigns')}</h1>
+                        <p className="mt-5 text-muted-foreground text-lg leading-relaxed">{t('simple_csv_imports')}</p>
                         <div className="mt-8 flex items-center gap-3">
-                            <a href="/register" className="inline-flex items-center justify-center rounded bg-primary text-primary-foreground px-5 py-3 font-medium">Get started</a>
-                            <a href="#how" className="inline-flex items-center justify-center rounded border px-5 py-3 font-medium">See how it works</a>
+                            <a href="/register" className="inline-flex items-center justify-center rounded bg-primary text-primary-foreground px-5 py-3 font-medium">{t('get_started')}</a>
+                            <a href="#how" className="inline-flex items-center justify-center rounded border px-5 py-3 font-medium">{t('see_how_it_works')}</a>
                         </div>
                         <div className="mt-10">
                             <img src="/images/brands.svg" alt="Brands" className="w-full max-w-xl opacity-80" />
@@ -48,16 +52,16 @@ export default function Landing() {
 
                 <section id="features" className="mt-24 grid md:grid-cols-3 gap-6">
                     <div className="p-6 rounded-xl border bg-card">
-                        <h3 className="text-lg font-semibold">CSV Imports</h3>
-                        <p className="mt-2 text-sm text-muted-foreground">Upload large contact lists and we’ll handle validation and de-duplication.</p>
+                        <h3 className="text-lg font-semibold">{t('csv_imports')}</h3>
+                        <p className="mt-2 text-sm text-muted-foreground">{t('csv_imports_desc')}</p>
                     </div>
                     <div className="p-6 rounded-xl border bg-card">
-                        <h3 className="text-lg font-semibold">Template Builder</h3>
-                        <p className="mt-2 text-sm text-muted-foreground">Create reusable templates with variables and previews.</p>
+                        <h3 className="text-lg font-semibold">{t('template_builder')}</h3>
+                        <p className="mt-2 text-sm text-muted-foreground">{t('template_builder_desc')}</p>
                     </div>
                     <div className="p-6 rounded-xl border bg-card">
-                        <h3 className="text-lg font-semibold">Reliable Delivery</h3>
-                        <p className="mt-2 text-sm text-muted-foreground">Resend transport ensures high deliverability and clear logs.</p>
+                        <h3 className="text-lg font-semibold">{t('reliable_delivery')}</h3>
+                        <p className="mt-2 text-sm text-muted-foreground">{t('reliable_delivery_desc')}</p>
                     </div>
                 </section>
 

@@ -2,10 +2,13 @@
 
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\LogsController;
+use App\Http\Controllers\GroupController;
+use App\Models\Group;
 
 Route::get('/', function () {
     return Inertia::render('landing');
@@ -40,6 +43,39 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Contacts routes
     Route::resource('contacts', ContactController::class);
+
+    // Groups routes
+    Route::resource('groups', GroupController::class);
+    Route::get('groups/create-with-contacts', function () {
+        return Inertia::render('Groups/CreateWithContacts', [
+            'contactsUrl' => route('groups.contacts.all')
+        ]);
+    })->name('groups.create-with-contacts');
+    Route::get('groups/{group}/edit-with-contacts', function (Group $group) {
+        // Ensure user can only edit their own groups
+        if ($group->user_id !== Auth::id()) {
+            abort(403);
+        }
+        return Inertia::render('Groups/EditWithContacts', [
+            'group' => $group->load('contacts'),
+            'contactsUrl' => route('groups.contacts.all')
+        ]);
+    })->name('groups.edit-with-contacts');
+    Route::post('groups/{group}/add-contacts', [GroupController::class, 'addContacts'])->name('groups.add-contacts');
+    Route::post('groups/{group}/remove-contacts', [GroupController::class, 'removeContacts'])->name('groups.remove-contacts');
+    Route::get('groups/{group}/available-contacts', [GroupController::class, 'getAvailableContacts'])->name('groups.available-contacts');
+    Route::get('groups/contacts/all', [GroupController::class, 'getAllContacts'])->name('groups.contacts.all');
+
+    // Debug route
+    Route::get('debug/contacts', function () {
+        $contacts = \App\Models\Contact::where('user_id', Auth::id())->get();
+        return response()->json([
+            'user_id' => Auth::id(),
+            'is_authenticated' => Auth::check(),
+            'contacts_count' => $contacts->count(),
+            'contacts' => $contacts
+        ]);
+    });
 
     // Logs
     Route::get('logs', [LogsController::class, 'index'])->name('logs.index');

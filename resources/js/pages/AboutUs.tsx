@@ -1,10 +1,14 @@
 import React from 'react';
 import { Head } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 export default function AboutUs() {
+    const { t } = useTranslation();
+
     return (
         <div className="min-h-screen bg-background text-foreground">
-            <Head title="About Us - MailNow" />
+            <Head title={`${t('about_mailnow')} - MailNow`} />
             <header className="px-6 py-4 border-b sticky top-0 bg-background/80 backdrop-blur z-10">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -13,31 +17,30 @@ export default function AboutUs() {
                     </div>
                     <nav className="text-sm flex items-center gap-6">
                         <a className="hover:underline" href="/">Home</a>
-                        <a className="hover:underline" href="/login">Sign in</a>
+                        <a className="hover:underline" href="/login">{t('sign_in')}</a>
+                        <LanguageSwitcher />
                         <button
                             type="button"
                             onClick={() => document.documentElement.classList.toggle('dark')}
                             className="inline-flex items-center rounded border px-3 py-1.5 text-xs"
                         >
-                            Toggle theme
+                            {t('toggle_theme')}
                         </button>
                     </nav>
                 </div>
             </header>
 
             <main className="max-w-4xl mx-auto px-6 py-16">
-                <h1 className="text-4xl font-bold mb-8">About MailNow</h1>
+                <h1 className="text-4xl font-bold mb-8">{t('about_mailnow')}</h1>
 
                 <div className="prose prose-slate dark:prose-invert max-w-none">
                     <p className="text-lg text-muted-foreground mb-6">
-                        MailNow was born from a simple need: making bulk email campaigns accessible, reliable, and easy to manage.
-                        We believe that every business, regardless of size, should have access to professional email marketing tools.
+                        {t('about_description')}
                     </p>
 
-                    <h2 className="text-2xl font-semibold mt-8 mb-4">Our Mission</h2>
+                    <h2 className="text-2xl font-semibold mt-8 mb-4">{t('our_mission')}</h2>
                     <p className="text-muted-foreground mb-6">
-                        To democratize email marketing by providing an intuitive platform that combines powerful features with
-                        simple usability. We're committed to helping businesses grow through effective communication.
+                        {t('our_mission_desc')}
                     </p>
 
                     <h2 className="text-2xl font-semibold mt-8 mb-4">What We Do</h2>
