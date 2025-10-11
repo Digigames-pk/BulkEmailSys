@@ -34,6 +34,16 @@ import {
     removeContacts as groupsRemoveContacts,
     availableContacts as groupsAvailableContacts
 } from './routes/groups';
+import {
+    index as emailCampaignsIndex,
+    create as emailCampaignsCreate,
+    store as emailCampaignsStore,
+    show as emailCampaignsShow,
+    edit as emailCampaignsEdit,
+    update as emailCampaignsUpdate,
+    destroy as emailCampaignsDestroy,
+    send as emailCampaignsSend
+} from './routes/email-campaigns';
 
 // Route name to function mapping
 const routeMap: Record<string, any> = {
@@ -69,6 +79,16 @@ const routeMap: Record<string, any> = {
     'groups.add-contacts': groupsAddContacts,
     'groups.remove-contacts': groupsRemoveContacts,
     'groups.available-contacts': groupsAvailableContacts,
+
+    // Email Campaign routes
+    'email-campaigns.index': emailCampaignsIndex,
+    'email-campaigns.create': emailCampaignsCreate,
+    'email-campaigns.store': emailCampaignsStore,
+    'email-campaigns.show': emailCampaignsShow,
+    'email-campaigns.edit': emailCampaignsEdit,
+    'email-campaigns.update': emailCampaignsUpdate,
+    'email-campaigns.destroy': emailCampaignsDestroy,
+    'email-campaigns.send': emailCampaignsSend,
 };
 
 // Global route helper function

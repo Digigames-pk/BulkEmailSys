@@ -61,7 +61,7 @@ export default function GroupsIndex({ groups }: GroupsIndexProps) {
         <AppLayout>
             <Head title={t('groups')} />
 
-            <div className="space-y-6">
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
@@ -119,12 +119,12 @@ export default function GroupsIndex({ groups }: GroupsIndexProps) {
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
-                                                <DropdownMenuItem asChild>
+                                                {/* <DropdownMenuItem asChild>
                                                     <Link href={route('groups.show', group.id)}>
                                                         <Eye className="w-4 h-4 mr-2" />
                                                         {t('view')}
                                                     </Link>
-                                                </DropdownMenuItem>
+                                                </DropdownMenuItem> */}
                                                 <DropdownMenuItem asChild>
                                                     <Link href={route('groups.edit', group.id)}>
                                                         <Edit className="w-4 h-4 mr-2" />

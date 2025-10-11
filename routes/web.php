@@ -8,6 +8,7 @@ use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\LogsController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\EmailCampaignController;
 use App\Models\Group;
 
 Route::get('/', function () {
@@ -63,6 +64,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('groups/{group}/remove-contacts', [GroupController::class, 'removeContacts'])->name('groups.remove-contacts');
     Route::get('groups/{group}/available-contacts', [GroupController::class, 'getAvailableContacts'])->name('groups.available-contacts');
     Route::get('groups/contacts/all', [GroupController::class, 'getAllContacts'])->name('groups.contacts.all');
+
+    // Email Campaign routes
+    Route::resource('email-campaigns', EmailCampaignController::class);
+    Route::post('email-campaigns/{emailCampaign}/send', [EmailCampaignController::class, 'send'])->name('email-campaigns.send');
 
     // Debug route
     Route::get('debug/contacts', function () {

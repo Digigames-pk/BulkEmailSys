@@ -143,8 +143,8 @@ class GroupController extends Controller
             'description' => 'nullable|string|max:1000',
             'color' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
             'contact_ids' => 'nullable|array',
+            'contact_ids.*' => 'exists:contacts,id'
         ]);
-        dd($request->all());
         $group->update([
             'name' => $request->name,
             'description' => $request->description,

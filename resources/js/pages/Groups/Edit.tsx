@@ -63,13 +63,11 @@ export default function EditGroup({ group, contacts }: GroupEditProps) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('Form data before submit:', data);
         console.log('Selected contacts before submit:', selectedContacts);
 
-        // Submit with the current data plus contact_ids
-        put(route('groups.update', group.id), {
-            ...data,
-            contact_ids: selectedContacts
-        } as any);
+        // Submit with the current form data (contact_ids is already updated in handlers)
+        put(route('groups.update', group.id));
     };
 
     const handleColorSelect = (color: string) => {
@@ -78,26 +76,31 @@ export default function EditGroup({ group, contacts }: GroupEditProps) {
     };
 
     const handleSelectContact = (contactId: number) => {
-        setSelectedContacts(prev =>
-            prev.includes(contactId)
-                ? prev.filter(id => id !== contactId)
-                : [...prev, contactId]
-        );
+        setSelectedContacts(prev => {
+            const exists = prev.includes(contactId);
+            const newSelection = exists ? prev.filter(id => id !== contactId) : [...prev, contactId];
+            // Update form data with new selection
+            setData('contact_ids', newSelection);
+            return newSelection;
+        });
     };
 
     const handleSelectAll = () => {
-        setSelectedContacts(prev =>
-            prev.length === contacts.length
+        setSelectedContacts(prev => {
+            const newSelection = prev.length === contacts.length
                 ? []
-                : contacts.map(c => c.id)
-        );
+                : contacts.map(c => c.id);
+            // Update form data with new selection
+            setData('contact_ids', newSelection);
+            return newSelection;
+        });
     };
 
     return (
         <AppLayout>
             <Head title={`${t('edit')} ${group.name}`} />
 
-            <div className="space-y-6">
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 {/* Header */}
                 <div className="flex items-center space-x-4">
                     <Button variant="ghost" size="sm" asChild>
