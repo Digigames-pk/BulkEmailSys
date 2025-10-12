@@ -80,9 +80,13 @@ class EmailCampaignController extends Controller
             'total_recipients' => $group->contacts()->count(),
         ]);
 
-        // If no scheduled time, send immediately
+        // Handle sending based on schedule
         if (!$request->scheduled_at) {
+            // Send immediately
             $this->sendCampaign($campaign);
+        } else {
+            // Schedule for later
+            $this->scheduleCampaign($campaign);
         }
 
         return redirect()->route('email-campaigns.index')
@@ -181,6 +185,14 @@ class EmailCampaignController extends Controller
             'total_recipients' => $group->contacts()->count(),
         ]);
 
+        // Handle sending based on schedule (only for draft campaigns)
+        if ($emailCampaign->status === 'draft' && !$request->scheduled_at) {
+            // Keep as draft - user will manually send later
+        } elseif ($emailCampaign->status === 'scheduled' && $request->scheduled_at) {
+            // Schedule for later
+            $this->scheduleCampaign($emailCampaign);
+        }
+
         return redirect()->route('email-campaigns.index')
             ->with('success', 'Email campaign updated successfully.');
     }
@@ -229,13 +241,22 @@ class EmailCampaignController extends Controller
     }
 
     /**
-     * Send the campaign emails.
+     * Send the campaign emails immediately.
      */
     private function sendCampaign(EmailCampaign $campaign)
     {
         $campaign->update(['status' => 'sending']);
 
-        // Dispatch job to send emails
+        // Dispatch job to send emails immediately
         SendBulkEmailJob::dispatch($campaign);
+    }
+
+    /**
+     * Schedule the campaign for later sending.
+     */
+    private function scheduleCampaign(EmailCampaign $campaign)
+    {
+        // Schedule job to send emails at the specified time
+        SendBulkEmailJob::dispatch($campaign)->delay($campaign->scheduled_at);
     }
 }

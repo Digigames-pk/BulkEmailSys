@@ -39,7 +39,7 @@ class ContactController extends Controller
     {
         $validated = $request->validate([
             'name'   => ['nullable', 'string', 'max:255'],
-            'email'  => ['required', 'email', 'max:255', Rule::unique('contacts', 'email')->where(fn($q) => $q->where('user_id', 1))],
+            'email'  => ['required', 'email', 'max:255'],
             'mobile' => ['nullable', 'string', 'max:50'],
             'gender' => ['nullable', 'string', 'max:50'],
         ]);
@@ -54,11 +54,11 @@ class ContactController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $contact = Contact::where('user_id', 1)->findOrFail($id);
+        $contact = Contact::where('user_id', Auth::id())->findOrFail($id);
 
         $validated = $request->validate([
             'name'   => ['nullable', 'string', 'max:255'],
-            'email'  => ['required', 'email', 'max:255', Rule::unique('contacts', 'email')->ignore($contact->id)->where(fn($q) => $q->where('user_id', 1))],
+            'email'  => ['required', 'email', 'max:255'],
             'mobile' => ['nullable', 'string', 'max:50'],
             'gender' => ['nullable', 'string', 'max:50'],
         ]);
@@ -73,7 +73,7 @@ class ContactController extends Controller
      */
     public function destroy(string $id)
     {
-        $contact = Contact::where('user_id', 1)->findOrFail($id);
+        $contact = Contact::where('user_id', Auth::id())->findOrFail($id);
         $contact->delete();
 
         return redirect()->route('contacts.index')->with('success', 'Contact deleted successfully.');
