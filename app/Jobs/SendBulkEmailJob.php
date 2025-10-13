@@ -51,11 +51,13 @@ class SendBulkEmailJob implements ShouldQueue
                         'sent_at' => null,
                     ]);
 
+                    // Determine HTML content for the email
+                    $htmlContent = $template->mail_content ?? $template->editor_content ?? '';
+
                     // Send the email
                     Mail::to($contact->email)->send(new EmailMailable(
                         $this->campaign->subject,
-                        $template->html_content,
-                        $contact->name
+                        $htmlContent
                     ));
 
                     // Update email log as sent
