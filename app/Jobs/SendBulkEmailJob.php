@@ -43,6 +43,7 @@ class SendBulkEmailJob implements ShouldQueue
                     // Create email log entry
                     $emailLog = EmailLog::create([
                         'email_campaign_id' => $this->campaign->id,
+                        'email_template_id' => $template->id,
                         'contact_id' => $contact->id,
                         'email' => $contact->email,
                         'subject' => $this->campaign->subject,

@@ -9,6 +9,7 @@ class EmailLog extends Model
 {
     protected $fillable = [
         'email_template_id',
+        'email_campaign_id',
         'contact_id',
         'email',
         'subject',
@@ -35,5 +36,13 @@ class EmailLog extends Model
     public function contact(): BelongsTo
     {
         return $this->belongsTo(Contact::class);
+    }
+
+    /**
+     * Get the email campaign that owns the log.
+     */
+    public function emailCampaign(): BelongsTo
+    {
+        return $this->belongsTo(EmailCampaign::class);
     }
 }
