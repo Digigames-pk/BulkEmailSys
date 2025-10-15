@@ -32,7 +32,7 @@ const Show = ({ emailTemplate }: Props) => {
                                 {emailTemplate.name}
                             </h1>
                             {emailTemplate.email_subject && (
-                                <div className="text-lg text-gray-700 mb-2">
+                                <div className="text-lg text-primary-700 mb-2">
                                     <strong>Subject:</strong> {emailTemplate.email_subject}
                                 </div>
                             )}
