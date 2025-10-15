@@ -28,7 +28,7 @@ export default function LogsIndex() {
                                 <th className="p-2">Status</th>
                                 <th className="p-2">Template</th>
                                 <th className="p-2">Contact</th>
-                                <th className="p-2">Sent At</th>
+                                <th className="p-2">Sent On</th>
                                 <th className="p-2">Error</th>
                             </tr>
                         </thead>
