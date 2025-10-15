@@ -15,14 +15,18 @@ class EmailMailable extends Mailable
 
     public $subject;
     public string $content;
+    public ?string $fromName;
+    public ?string $replyToEmail;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(string $subject, string $content)
+    public function __construct(string $subject, string $content, ?string $fromName = null, ?string $replyToEmail = null)
     {
         $this->subject = $subject;
         $this->content = $content;
+        $this->fromName = $fromName;
+        $this->replyToEmail = $replyToEmail;
     }
 
     /**
@@ -30,9 +34,21 @@ class EmailMailable extends Mailable
      */
     public function envelope(): Envelope
     {
-        return new Envelope(
+        $envelope = new Envelope(
             subject: $this->subject,
         );
+
+        // Set from name if provided
+        if ($this->fromName) {
+            $envelope->from(config('mail.from.address'), $this->fromName);
+        }
+
+        // Set reply-to email if provided
+        if ($this->replyToEmail) {
+            $envelope->replyTo($this->replyToEmail);
+        }
+
+        return $envelope;
     }
 
     /**

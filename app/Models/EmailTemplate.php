@@ -14,6 +14,8 @@ class EmailTemplate extends Model
         'user_id',
         'name',
         'email_subject',
+        'from_name',
+        'reply_to_email',
         'csv_file',
         'editor_content',
         'mail_content',

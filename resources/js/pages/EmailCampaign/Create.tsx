@@ -36,6 +36,8 @@ export default function CreateCampaign({ emailTemplates, groups }: CreateCampaig
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         subject: '',
+        from_name: '',
+        reply_to_email: '',
         description: '',
         email_template_id: '',
         group_id: '',
@@ -180,6 +182,44 @@ export default function CreateCampaign({ emailTemplates, groups }: CreateCampaig
                                 {errors.subject && (
                                     <p className="text-sm text-red-500">{errors.subject}</p>
                                 )}
+                            </div>
+
+                            {/* From Name */}
+                            <div className="space-y-2">
+                                <Label htmlFor="from_name">{t('from_name')}</Label>
+                                <Input
+                                    id="from_name"
+                                    type="text"
+                                    value={data.from_name}
+                                    onChange={(e) => setData('from_name', e.target.value)}
+                                    placeholder={t('enter_from_name')}
+                                    className={errors.from_name ? 'border-red-500' : ''}
+                                />
+                                {errors.from_name && (
+                                    <p className="text-sm text-red-500">{errors.from_name}</p>
+                                )}
+                                <p className="text-sm text-muted-foreground">
+                                    {t('leave_empty_to_use_default')}
+                                </p>
+                            </div>
+
+                            {/* Reply To Email */}
+                            <div className="space-y-2">
+                                <Label htmlFor="reply_to_email">{t('reply_to_email')}</Label>
+                                <Input
+                                    id="reply_to_email"
+                                    type="email"
+                                    value={data.reply_to_email}
+                                    onChange={(e) => setData('reply_to_email', e.target.value)}
+                                    placeholder={t('enter_reply_to_email')}
+                                    className={errors.reply_to_email ? 'border-red-500' : ''}
+                                />
+                                {errors.reply_to_email && (
+                                    <p className="text-sm text-red-500">{errors.reply_to_email}</p>
+                                )}
+                                <p className="text-sm text-muted-foreground">
+                                    {t('leave_empty_to_use_default')}
+                                </p>
                             </div>
 
                             {/* Description */}

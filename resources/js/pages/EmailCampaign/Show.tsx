@@ -40,6 +40,8 @@ interface EmailCampaign {
     id: number;
     name: string;
     subject: string;
+    from_name: string | null;
+    reply_to_email: string | null;
     description: string | null;
     status: 'draft' | 'scheduled' | 'sending' | 'sent' | 'failed';
     scheduled_at: string | null;

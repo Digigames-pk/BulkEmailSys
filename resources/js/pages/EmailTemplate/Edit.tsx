@@ -10,6 +10,8 @@ interface EmailTemplate {
     id: number;
     name: string;
     email_subject: string | null;
+    from_name: string | null;
+    reply_to_email: string | null;
     csv_file: string | null;
     thumbnail: string | null;
     editor_content: string | null;
@@ -26,6 +28,8 @@ const Edit = ({ emailTemplate }: Props) => {
     const emailEditorRef = useRef<EditorRef>(null);
     const [name, setName] = useState(emailTemplate?.name || '');
     const [emailSubject, setEmailSubject] = useState(emailTemplate?.email_subject || '');
+    const [fromName, setFromName] = useState(emailTemplate?.from_name || '');
+    const [replyToEmail, setReplyToEmail] = useState(emailTemplate?.reply_to_email || '');
     const [csvFile, setCsvFile] = useState<File | null>(null);
     const [csvFileUrl, setCsvFileUrl] = useState(emailTemplate?.csv_file || '');
     const [thumbnail, setThumbnail] = useState<File | null>(null);
@@ -84,6 +88,8 @@ const Edit = ({ emailTemplate }: Props) => {
             const formData = new FormData();
             formData.append('name', name);
             formData.append('email_subject', emailSubject);
+            formData.append('from_name', fromName);
+            formData.append('reply_to_email', replyToEmail);
             formData.append('editor_content', encodedMailContent);
             formData.append('mail_content', encodedHtml);
 
@@ -174,7 +180,7 @@ const Edit = ({ emailTemplate }: Props) => {
                             </button>
                         </div>
                         <div className="p-6">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                                 <div className="form-group">
                                     <label className="form-label">Template Name</label>
                                     <input
@@ -196,6 +202,26 @@ const Edit = ({ emailTemplate }: Props) => {
                                         value={emailSubject}
                                         onChange={(e) => setEmailSubject(e.target.value)}
                                         placeholder="Enter email subject"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">From Name</label>
+                                    <input
+                                        type="text"
+                                        className="form-input"
+                                        value={fromName}
+                                        onChange={(e) => setFromName(e.target.value)}
+                                        placeholder="Enter from name (optional)"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Reply To Email</label>
+                                    <input
+                                        type="email"
+                                        className="form-input"
+                                        value={replyToEmail}
+                                        onChange={(e) => setReplyToEmail(e.target.value)}
+                                        placeholder="Enter reply-to email (optional)"
                                     />
                                 </div>
                                 <div className="form-group">

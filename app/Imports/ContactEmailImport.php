@@ -104,7 +104,12 @@ class ContactEmailImport implements ToCollection, WithHeadingRow
             $content = str_replace('{{email}}', $contact->email, $content);
             $content = str_replace('{{mobile}}', $contact->mobile ?? '', $content);
 
-            Mail::to($email)->send(new EmailMailable($subject, $content));
+            Mail::to($email)->send(new EmailMailable(
+                $subject,
+                $content,
+                $this->emailTemplate->from_name,
+                $this->emailTemplate->reply_to_email
+            ));
 
             // Update email log
             $emailLog->update([

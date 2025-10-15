@@ -53,8 +53,9 @@ class SendBulkEmailJob implements ShouldQueue
                     // Send the email
                     Mail::to($contact->email)->send(new EmailMailable(
                         $this->campaign->subject,
-                        $template->html_content,
-                        $contact->name
+                        $template->mail_content,
+                        $this->campaign->from_name ?? $template->from_name,
+                        $this->campaign->reply_to_email ?? $template->reply_to_email
                     ));
 
                     // Update email log as sent

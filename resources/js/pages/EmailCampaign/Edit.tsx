@@ -27,6 +27,8 @@ interface EmailCampaign {
     id: number;
     name: string;
     subject: string;
+    from_name: string | null;
+    reply_to_email: string | null;
     description: string | null;
     email_template_id: number;
     group_id: number;
@@ -51,6 +53,8 @@ export default function EditCampaign({ campaign, emailTemplates, groups }: EditC
     const { data, setData, put, processing, errors } = useForm({
         name: campaign.name,
         subject: campaign.subject,
+        from_name: campaign.from_name || '',
+        reply_to_email: campaign.reply_to_email || '',
         description: campaign.description || '',
         email_template_id: campaign.email_template_id.toString(),
         group_id: campaign.group_id.toString(),
@@ -195,6 +199,44 @@ export default function EditCampaign({ campaign, emailTemplates, groups }: EditC
                                 {errors.subject && (
                                     <p className="text-sm text-red-500">{errors.subject}</p>
                                 )}
+                            </div>
+
+                            {/* From Name */}
+                            <div className="space-y-2">
+                                <Label htmlFor="from_name">{t('from_name')}</Label>
+                                <Input
+                                    id="from_name"
+                                    type="text"
+                                    value={data.from_name}
+                                    onChange={(e) => setData('from_name', e.target.value)}
+                                    placeholder={t('enter_from_name')}
+                                    className={errors.from_name ? 'border-red-500' : ''}
+                                />
+                                {errors.from_name && (
+                                    <p className="text-sm text-red-500">{errors.from_name}</p>
+                                )}
+                                <p className="text-sm text-muted-foreground">
+                                    {t('leave_empty_to_use_default')}
+                                </p>
+                            </div>
+
+                            {/* Reply To Email */}
+                            <div className="space-y-2">
+                                <Label htmlFor="reply_to_email">{t('reply_to_email')}</Label>
+                                <Input
+                                    id="reply_to_email"
+                                    type="email"
+                                    value={data.reply_to_email}
+                                    onChange={(e) => setData('reply_to_email', e.target.value)}
+                                    placeholder={t('enter_reply_to_email')}
+                                    className={errors.reply_to_email ? 'border-red-500' : ''}
+                                />
+                                {errors.reply_to_email && (
+                                    <p className="text-sm text-red-500">{errors.reply_to_email}</p>
+                                )}
+                                <p className="text-sm text-muted-foreground">
+                                    {t('leave_empty_to_use_default')}
+                                </p>
                             </div>
 
                             {/* Description */}

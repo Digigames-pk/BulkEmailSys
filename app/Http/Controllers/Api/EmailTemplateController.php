@@ -35,6 +35,8 @@ class EmailTemplateController extends Controller
             $request->validate([
                 'name' => 'required|string|max:255',
                 'email_subject' => 'nullable|string|max:255',
+                'from_name' => 'nullable|string|max:255',
+                'reply_to_email' => 'nullable|email|max:255',
                 'csv_file' => 'nullable|file', // 10MB max for CSV files
                 'editor_content' => 'nullable|string',
                 'mail_content' => 'nullable|string',
@@ -103,6 +105,8 @@ class EmailTemplateController extends Controller
             $request->validate([
                 'name' => 'required|string|max:255',
                 'email_subject' => 'nullable|string|max:255',
+                'from_name' => 'nullable|string|max:255',
+                'reply_to_email' => 'nullable|email|max:255',
                 'csv_file' => 'nullable|file', // 10MB max for CSV files
                 'editor_content' => 'nullable|string',
                 'mail_content' => 'nullable|string',

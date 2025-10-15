@@ -11,6 +11,8 @@ class EmailCampaign extends Model
     protected $fillable = [
         'name',
         'subject',
+        'from_name',
+        'reply_to_email',
         'description',
         'email_template_id',
         'group_id',

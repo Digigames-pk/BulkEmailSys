@@ -12,6 +12,8 @@ const Create = () => {
     const { data, setData, errors, processing, setError, reset } = useForm({
         name: '',
         email_subject: '',
+        from_name: '',
+        reply_to_email: '',
         csv_file: null as File | null,
         thumbnail: null as File | null,
     });
@@ -49,6 +51,8 @@ const Create = () => {
             const formData = new FormData();
             formData.append('name', data.name);
             formData.append('email_subject', data.email_subject || '');
+            formData.append('from_name', data.from_name || '');
+            formData.append('reply_to_email', data.reply_to_email || '');
             formData.append('editor_content', encodedMailContent);
             formData.append('mail_content', encodedHtml);
             if (data.thumbnail) {
@@ -122,7 +126,7 @@ const Create = () => {
                             </button>
                         </div>
                         <div className="p-6">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                                 <div className="form-group">
                                     <label htmlFor="name" className="form-label">Template Name</label>
                                     <input
@@ -152,6 +156,38 @@ const Create = () => {
                                     {errors.email_subject && (
                                         <div className="form-error">
                                             {errors.email_subject}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="from_name" className="form-label">From Name</label>
+                                    <input
+                                        type="text"
+                                        id="from_name"
+                                        className={`form-input ${errors.from_name ? 'border-red-500' : ''}`}
+                                        value={data.from_name}
+                                        onChange={(e) => setData('from_name', e.target.value)}
+                                        placeholder="Enter from name (optional)"
+                                    />
+                                    {errors.from_name && (
+                                        <div className="form-error">
+                                            {errors.from_name}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="reply_to_email" className="form-label">Reply To Email</label>
+                                    <input
+                                        type="email"
+                                        id="reply_to_email"
+                                        className={`form-input ${errors.reply_to_email ? 'border-red-500' : ''}`}
+                                        value={data.reply_to_email}
+                                        onChange={(e) => setData('reply_to_email', e.target.value)}
+                                        placeholder="Enter reply-to email (optional)"
+                                    />
+                                    {errors.reply_to_email && (
+                                        <div className="form-error">
+                                            {errors.reply_to_email}
                                         </div>
                                     )}
                                 </div>
