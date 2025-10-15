@@ -43,6 +43,7 @@ class SendBulkEmailJob implements ShouldQueue
                     // Create email log entry
                     $emailLog = EmailLog::create([
                         'email_campaign_id' => $this->campaign->id,
+                        'email_template_id' => $template->id,
                         'contact_id' => $contact->id,
                         'email' => $contact->email,
                         'subject' => $this->campaign->subject,
@@ -50,10 +51,13 @@ class SendBulkEmailJob implements ShouldQueue
                         'sent_at' => null,
                     ]);
 
+                    // Determine HTML content for the email
+                    $htmlContent = $template->mail_content ?? $template->editor_content ?? '';
+
                     // Send the email
                     Mail::to($contact->email)->send(new EmailMailable(
                         $this->campaign->subject,
-                        $template->mail_content,
+                        $htmlContent,
                         $this->campaign->from_name ?? $template->from_name,
                         $this->campaign->reply_to_email ?? $template->reply_to_email
                     ));
