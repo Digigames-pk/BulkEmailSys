@@ -139,6 +139,8 @@ export default function CampaignWizard({ baseTemplates, emailTemplates, groups }
             const result = await response.json();
 
             if (result.success) {
+                // Show success message
+                alert(result.message || 'Campaign created successfully!');
                 // Redirect to email campaigns page on success
                 router.visit('/email-campaigns');
             } else {

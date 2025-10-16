@@ -6,6 +6,7 @@ use App\Models\BaseTemplate;
 use App\Models\EmailTemplate;
 use App\Models\Group;
 use App\Models\EmailCampaign;
+use App\Jobs\SendBulkEmailJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -107,14 +108,44 @@ class CampaignWizardController extends Controller
             'email_template_id' => $request->email_template_id,
             'group_id' => $request->group_id,
             'user_id' => Auth::id(),
-            'status' => 'draft',
+            'status' => $request->scheduled_at ? 'scheduled' : 'draft',
             'scheduled_at' => $request->scheduled_at,
             'total_recipients' => Group::find($request->group_id)->contacts()->count(),
         ]);
 
+        // Handle sending based on schedule
+        if (!$request->scheduled_at) {
+            // Send immediately
+            $this->sendCampaign($campaign);
+        } else {
+            // Schedule for later
+            $this->scheduleCampaign($campaign);
+        }
+
         return response()->json([
             'success' => true,
             'campaign' => $campaign,
+            'message' => $request->scheduled_at ? 'Campaign scheduled successfully!' : 'Campaign created and emails are being sent!',
         ]);
+    }
+
+    /**
+     * Send the campaign emails immediately.
+     */
+    private function sendCampaign(EmailCampaign $campaign)
+    {
+        $campaign->update(['status' => 'sending']);
+
+        // Dispatch job to send emails immediately
+        SendBulkEmailJob::dispatch($campaign);
+    }
+
+    /**
+     * Schedule the campaign for later sending.
+     */
+    private function scheduleCampaign(EmailCampaign $campaign)
+    {
+        // Schedule job to send emails at the specified time
+        SendBulkEmailJob::dispatch($campaign)->delay($campaign->scheduled_at);
     }
 }
