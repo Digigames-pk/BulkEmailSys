@@ -7,6 +7,7 @@ use App\Mail\EmailMailable;
 use App\Models\Contact;
 use App\Models\EmailLog;
 use App\Models\EmailTemplate;
+use App\Models\Group;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -20,6 +21,8 @@ class ContactEmailImport implements ToCollection, WithHeadingRow
     public int $totalProcessed = 0;
     public int $totalSent = 0;
     public int $totalFailed = 0;
+    public int $totalSkipped = 0;
+    public array $importedContacts = [];
 
     public function __construct(EmailTemplate $emailTemplate, int $userId)
     {
@@ -50,15 +53,29 @@ class ContactEmailImport implements ToCollection, WithHeadingRow
             }
 
             try {
-                // Create or update contact
-                $contact = Contact::updateOrCreate(
-                    ['email' => $email, 'user_id' => $this->userId],
-                    [
-                        'name' => $row['name'] ?? $this->extractNameFromEmail($email),
-                        'mobile' => $row['mobile'] ?? null,
-                        'gender' => $row['gender'] ?? null,
-                    ]
-                );
+                // Check if contact already exists for this user
+                $existingContact = Contact::where('email', $email)
+                    ->where('user_id', $this->userId)
+                    ->first();
+
+                if ($existingContact) {
+                    // Skip existing contact
+                    $this->totalSkipped++;
+                    Log::info("Skipped existing contact: {$email}");
+                    continue;
+                }
+
+                // Create new contact
+                $contact = Contact::create([
+                    'email' => $email,
+                    'user_id' => $this->userId,
+                    'name' => $row['name'] ?? $this->extractNameFromEmail($email),
+                    'mobile' => $row['mobile'] ?? null,
+                    'gender' => $row['gender'] ?? null,
+                ]);
+
+                // Track newly imported contact for group assignment
+                $this->importedContacts[] = $contact->id;
 
                 // Create email log entry
                 $emailLog = EmailLog::create([
@@ -77,8 +94,11 @@ class ContactEmailImport implements ToCollection, WithHeadingRow
             }
         }
 
+        // Create automatic group for imported contacts
+        $this->createAutomaticGroup();
+
         // Log summary
-        Log::info("CSV Import Summary for Template {$this->emailTemplate->id}: Total: {$this->totalProcessed}, Sent: {$this->totalSent}, Failed: {$this->totalFailed}");
+        Log::info("CSV Import Summary for Template {$this->emailTemplate->id}: Total: {$this->totalProcessed}, New: " . count($this->importedContacts) . ", Sent: {$this->totalSent}, Failed: {$this->totalFailed}, Skipped: {$this->totalSkipped}");
 
         // Touch summary timestamp
         try {
@@ -188,5 +208,57 @@ class ContactEmailImport implements ToCollection, WithHeadingRow
         $name = ucwords($name);
 
         return $name;
+    }
+
+    /**
+     * Create automatic group for newly imported contacts
+     */
+    public function createAutomaticGroup(): void
+    {
+        try {
+            // Only create group if we have newly imported contacts
+            if (empty($this->importedContacts)) {
+                Log::info('No new contacts imported, skipping group creation');
+                return;
+            }
+
+            // Get the next group number for this user
+            $groupCount = Group::where('user_id', $this->userId)->count();
+            $groupNumber = $groupCount + 1;
+
+            // Create the group
+            $group = Group::create([
+                'name' => "Group {$groupNumber}",
+                'description' => "Auto-generated group from CSV import for Email Template: {$this->emailTemplate->name} (New contacts only)",
+                'color' => $this->getRandomColor(),
+                'user_id' => $this->userId,
+            ]);
+
+            // Attach all newly imported contacts to the group
+            $group->contacts()->attach($this->importedContacts);
+
+            Log::info("Created automatic group '{$group->name}' with " . count($this->importedContacts) . " new contacts for user {$this->userId}");
+        } catch (\Exception $e) {
+            Log::error('Failed to create automatic group: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get a random color for the group
+     */
+    private function getRandomColor(): string
+    {
+        $colors = [
+            '#3B82F6', // Blue
+            '#10B981', // Green
+            '#F59E0B', // Yellow
+            '#EF4444', // Red
+            '#8B5CF6', // Purple
+            '#06B6D4', // Cyan
+            '#F97316', // Orange
+            '#84CC16', // Lime
+        ];
+
+        return $colors[array_rand($colors)];
     }
 }
