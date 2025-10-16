@@ -7,6 +7,7 @@ use App\Http\Resources\EmailTemplateResource;
 use App\Jobs\ProcessCsvImportJob;
 use App\Models\EmailTemplate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
@@ -44,8 +45,8 @@ class EmailTemplateController extends Controller
             ]);
 
             $data = $request->all();
-            // Set user_id to 1 as default since we're removing authentication
-            $data['user_id'] = 1;
+            // Set user_id to authenticated user
+            $data['user_id'] = Auth::id();
 
             $data['editor_content'] = base64_decode($data['editor_content'] ?? '');
             $data['mail_content'] = base64_decode($data['mail_content'] ?? '');

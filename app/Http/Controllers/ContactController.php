@@ -6,7 +6,11 @@ use Inertia\Inertia;
 use App\Models\Contact;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
+use App\Imports\SimpleContactImport;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
 
 class ContactController extends Controller
 {
@@ -77,5 +81,67 @@ class ContactController extends Controller
         $contact->delete();
 
         return redirect()->route('contacts.index')->with('success', 'Contact deleted successfully.');
+    }
+
+    /**
+     * Import contacts from CSV file
+     */
+    public function importCsv(Request $request)
+    {
+        $request->validate([
+            'csv_file' => 'required|file',
+        ]);
+
+        try {
+            $file = $request->file('csv_file');
+
+            // Debug information
+            Log::info('CSV Import Debug', [
+                'has_file' => $request->hasFile('csv_file'),
+                'filename' => $file ? $file->getClientOriginalName() : 'No file',
+                'mime_type' => $file ? $file->getMimeType() : 'No file',
+                'extension' => $file ? $file->getClientOriginalExtension() : 'No file',
+                'size' => $file ? $file->getSize() : 'No file',
+                'all_files' => $request->allFiles(),
+            ]);
+
+            if (!$file) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No file uploaded'
+                ], 400);
+            }
+
+            $fileName = 'contacts_import_' . time() . '_' . Auth::id() . '.csv';
+            $filePath = $file->storeAs('temp', $fileName, 'public');
+
+            // Set longer timeout for large files
+            set_time_limit(300); // 5 minutes
+
+            // Import contacts using SimpleContactImport
+            Excel::import(new SimpleContactImport(Auth::id()), storage_path('app/public/' . $filePath));
+
+            // Clean up temporary file
+            Storage::disk('public')->delete($filePath);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Contacts imported successfully!'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed: ' . implode(', ', $e->errors()['csv_file'] ?? [])
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('CSV Import Error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to import contacts: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

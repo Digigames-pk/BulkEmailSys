@@ -6,12 +6,15 @@ import AppLayout from "@/layouts/app-layout";
 import { type BreadcrumbItem } from "@/types";
 import CreateEditModal from "./CreateEditModal";
 import ConfirmDeleteDialog from "./ConfirmDeleteDialog";
+import CsvImportModal from "./CsvImportModal";
+import { Upload } from "lucide-react";
 
 export default function Index({ contacts, filters }: any) {
     const [search, setSearch] = useState(filters.search || "");
     const [selectedContact, setSelectedContact] = useState<any | null>(null);
     const [showCreateEditDialog, setShowCreateEditDialog] = useState(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [showImportDialog, setShowImportDialog] = useState(false);
     const [deletingId, setDeletingId] = useState<number | null>(null);
 
     const form = useForm({});
@@ -53,6 +56,36 @@ export default function Index({ contacts, filters }: any) {
         });
     };
 
+    const handleImportCsv = (file: File) => {
+        const formData = new FormData();
+        formData.append('csv_file', file);
+
+        // Use fetch instead of Inertia form for file uploads
+        fetch('/contacts/import-csv', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                'Accept': 'application/json',
+            },
+            body: formData,
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    setShowImportDialog(false);
+                    alert('Success: ' + data.message);
+                    // Reload the page to show updated contacts
+                    window.location.reload();
+                } else {
+                    throw new Error(data.message || 'Import failed');
+                }
+            })
+            .catch(error => {
+                console.error('Import failed:', error);
+                alert('Import failed: ' + error.message);
+            });
+    };
+
     const columns = [
         { header: "Name", cell: (row: any) => row.name },
         { header: "Email", cell: (row: any) => row.email },
@@ -84,6 +117,14 @@ export default function Index({ contacts, filters }: any) {
                             placeholder="Search by Name, Email or Mobile"
                             className="rounded border border-gray-300 px-3 py-2"
                         />
+                        <Button
+                            variant="outline"
+                            onClick={() => setShowImportDialog(true)}
+                            className="flex items-center gap-2"
+                        >
+                            <Upload className="w-4 h-4" />
+                            Import CSV
+                        </Button>
                         <Button onClick={handleCreate}>+ Add Contact</Button>
                     </div>
                 </div>
@@ -124,6 +165,12 @@ export default function Index({ contacts, filters }: any) {
                 open={showDeleteDialog}
                 onClose={() => setShowDeleteDialog(false)}
                 onConfirm={confirmDelete}
+                processing={form.processing}
+            />
+            <CsvImportModal
+                open={showImportDialog}
+                onClose={() => setShowImportDialog(false)}
+                onImport={handleImportCsv}
                 processing={form.processing}
             />
         </AppLayout>

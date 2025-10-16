@@ -8,7 +8,9 @@ use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\LogsController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\CampaignWizardController;
 use App\Http\Controllers\EmailCampaignController;
+use App\Http\Controllers\Api\EmailTemplateController as ApiEmailTemplateController;
 use App\Models\Group;
 
 Route::get('/', function () {
@@ -42,6 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Contacts routes
     Route::resource('contacts', ContactController::class);
+    Route::post('contacts/import-csv', [ContactController::class, 'importCsv'])->name('contacts.import-csv');
 
     // Groups routes
     Route::resource('groups', GroupController::class);
@@ -65,6 +68,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('groups/{group}/available-contacts', [GroupController::class, 'getAvailableContacts'])->name('groups.available-contacts');
     Route::get('groups/contacts/all', [GroupController::class, 'getAllContacts'])->name('groups.contacts.all');
 
+    // Campaign Wizard routes
+    Route::get('campaign-wizard', [CampaignWizardController::class, 'index'])->name('campaign-wizard.index');
+    Route::post('campaign-wizard/create-template-from-base', [CampaignWizardController::class, 'createTemplateFromBase'])->name('campaign-wizard.create-template-from-base');
+    Route::post('campaign-wizard/create-template-from-scratch', [CampaignWizardController::class, 'createTemplateFromScratch'])->name('campaign-wizard.create-template-from-scratch');
+    Route::post('campaign-wizard/create-campaign', [CampaignWizardController::class, 'createCampaign'])->name('campaign-wizard.create-campaign');
+
+    // Email Template API routes (for wizard)
+    Route::apiResource('api/email-templates', ApiEmailTemplateController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
+    Route::post('api/email-templates/{emailTemplate}', [ApiEmailTemplateController::class, 'update']);
+
     // Email Campaign routes
     Route::resource('email-campaigns', EmailCampaignController::class);
     Route::post('email-campaigns/{emailCampaign}/send', [EmailCampaignController::class, 'send'])->name('email-campaigns.send');
@@ -78,6 +91,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
             'contacts_count' => $contacts->count(),
             'contacts' => $contacts
         ]);
+    });
+
+    // Debug route for testing file validation
+    Route::post('debug/file-validation', function (Request $request) {
+        $file = $request->file('csv_file');
+        if ($file) {
+            return response()->json([
+                'filename' => $file->getClientOriginalName(),
+                'mime_type' => $file->getMimeType(),
+                'extension' => $file->getClientOriginalExtension(),
+                'size' => $file->getSize(),
+                'size_mb' => round($file->getSize() / 1024 / 1024, 2),
+                'is_valid' => $file->isValid(),
+                'error' => $file->getError(),
+            ]);
+        }
+        return response()->json(['error' => 'No file uploaded']);
     });
 
     // Logs

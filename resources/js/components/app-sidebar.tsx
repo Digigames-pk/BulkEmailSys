@@ -13,7 +13,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Mail, Users, Send } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Mail, Users, Send, Wand2 } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -46,6 +46,11 @@ const mainNavItems: NavItem[] = [
         title: 'Groups',
         href: '/groups',
         icon: Users,
+    },
+    {
+        title: 'Campaign Wizard',
+        href: '/campaign-wizard',
+        icon: Wand2,
     },
     {
         title: 'Email Campaigns',

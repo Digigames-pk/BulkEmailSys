@@ -2,8 +2,6 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\EmailTemplateController;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -14,13 +12,6 @@ use App\Http\Controllers\Api\EmailTemplateController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
-// Email Template API Routes (Open - No Authentication Required)
-Route::apiResource('email-templates', EmailTemplateController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
-
-
-// Additional route for POST with _method spoofing (for file uploads with PUT)
-Route::post('email-templates/{emailTemplate}', [EmailTemplateController::class, 'update']);
 
 // Test route to debug FormData
 Route::post('test-formdata', function (Request $request) {

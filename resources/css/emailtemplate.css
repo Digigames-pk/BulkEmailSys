@@ -1,5 +1,26 @@
 /* Email Template Styles - Laravel Theme with Dark/Light Mode Support */
 
+/* Selected Template Card */
+.templateCard.selected {
+    border-color: rgb(34 197 94);
+    box-shadow: 0 0 0 2px rgb(34 197 94 / 0.2);
+}
+
+.dark .templateCard.selected {
+    border-color: rgb(34 197 94);
+    box-shadow: 0 0 0 2px rgb(34 197 94 / 0.3);
+}
+
+.templateCard.selected .card-header {
+    background: rgb(240 253 244);
+    color: rgb(22 101 52);
+}
+
+.dark .templateCard.selected .card-header {
+    background: rgb(20 83 45);
+    color: rgb(134 239 172);
+}
+
 /* Template Grid */
 .template-grid {
     display: grid;
