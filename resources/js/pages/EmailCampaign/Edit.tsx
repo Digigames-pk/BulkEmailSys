@@ -203,39 +203,39 @@ export default function EditCampaign({ campaign, emailTemplates, groups }: EditC
 
                             {/* From Name */}
                             <div className="space-y-2">
-                                <Label htmlFor="from_name">{t('from_name')}</Label>
+                                <Label htmlFor="from_name">From Name</Label>
                                 <Input
                                     id="from_name"
                                     type="text"
                                     value={data.from_name}
                                     onChange={(e) => setData('from_name', e.target.value)}
-                                    placeholder={t('enter_from_name')}
+                                    placeholder="Enter sender name"
                                     className={errors.from_name ? 'border-red-500' : ''}
                                 />
                                 {errors.from_name && (
                                     <p className="text-sm text-red-500">{errors.from_name}</p>
                                 )}
                                 <p className="text-sm text-muted-foreground">
-                                    {t('leave_empty_to_use_default')}
+                                    Leave empty to use default
                                 </p>
                             </div>
 
                             {/* Reply To Email */}
                             <div className="space-y-2">
-                                <Label htmlFor="reply_to_email">{t('reply_to_email')}</Label>
+                                <Label htmlFor="reply_to_email">Reply To Email</Label>
                                 <Input
                                     id="reply_to_email"
                                     type="email"
                                     value={data.reply_to_email}
                                     onChange={(e) => setData('reply_to_email', e.target.value)}
-                                    placeholder={t('enter_reply_to_email')}
+                                    placeholder="Enter reply-to email address"
                                     className={errors.reply_to_email ? 'border-red-500' : ''}
                                 />
                                 {errors.reply_to_email && (
                                     <p className="text-sm text-red-500">{errors.reply_to_email}</p>
                                 )}
                                 <p className="text-sm text-muted-foreground">
-                                    {t('leave_empty_to_use_default')}
+                                    Leave empty to use default
                                 </p>
                             </div>
 
