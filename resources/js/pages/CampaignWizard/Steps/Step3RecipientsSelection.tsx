@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Users, CheckCircle, Send } from 'lucide-react';
 
 interface Group {
@@ -42,6 +43,7 @@ export default function Step3RecipientsSelection({
     onCreateCampaign,
     isLoading
 }: Step3Props) {
+    const { toast } = useToast();
     const selectedGroup = groups.find(g => g.id.toString() === data.group_id);
 
     const handleGroupSelect = (groupId: string) => {
@@ -50,7 +52,11 @@ export default function Step3RecipientsSelection({
 
     const handleCreateCampaign = () => {
         if (!data.group_id) {
-            alert('Please select a recipient group');
+            toast({
+                title: "Group Required",
+                description: "Please select a recipient group",
+                variant: "destructive",
+            });
             return;
         }
         onCreateCampaign();

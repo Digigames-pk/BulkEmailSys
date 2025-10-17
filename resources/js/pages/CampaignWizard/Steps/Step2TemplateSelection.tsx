@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, ArrowRight, FileText, Palette, Plus, Eye, Check } from 'lucide-react';
 import { router } from '@inertiajs/react';
 import EmailEditor, { EditorRef } from 'react-email-editor';
@@ -60,6 +61,7 @@ export default function Step2TemplateSelection({
     onNext,
     onPrev
 }: Step2Props) {
+    const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
     const [templateName, setTemplateName] = useState('');
     const [templateSubject, setTemplateSubject] = useState('');
@@ -79,7 +81,11 @@ export default function Step2TemplateSelection({
 
     const handleBaseTemplateSelect = async (baseTemplateId: number) => {
         if (!templateName.trim()) {
-            alert('Please enter a template name');
+            toast({
+                title: "Template Name Required",
+                description: "Please enter a template name",
+                variant: "destructive",
+            });
             return;
         }
 
@@ -88,7 +94,11 @@ export default function Step2TemplateSelection({
             // Find the base template to get its content
             const baseTemplate = baseTemplates.find(t => t.id === baseTemplateId);
             if (!baseTemplate) {
-                alert('Base template not found');
+                toast({
+                    title: "Template Not Found",
+                    description: "Base template not found",
+                    variant: "destructive",
+                });
                 setIsLoading(false);
                 return;
             }
@@ -115,13 +125,25 @@ export default function Step2TemplateSelection({
                     selected_base_template_id: baseTemplateId,
                     created_template_id: result.data.id,
                 });
-                alert('Template created successfully! You can now proceed to the next step.');
+                toast({
+                    title: "Template Created",
+                    description: "Template created successfully! You can now proceed to the next step.",
+                    variant: "success",
+                });
             } else {
-                alert('Failed to create template: ' + (result.message || 'Unknown error'));
+                toast({
+                    title: "Template Creation Failed",
+                    description: result.message || 'Unknown error',
+                    variant: "destructive",
+                });
             }
         } catch (error) {
             console.error('Error creating template:', error);
-            alert('Error creating template');
+            toast({
+                title: "Error",
+                description: "Error creating template",
+                variant: "destructive",
+            });
         } finally {
             setIsLoading(false);
         }
@@ -136,12 +158,20 @@ export default function Step2TemplateSelection({
 
     const handleSaveEmailEditorTemplate = async () => {
         if (!emailEditorRef.current?.editor) {
-            alert('Email editor not ready');
+            toast({
+                title: "Editor Not Ready",
+                description: "Email editor not ready",
+                variant: "destructive",
+            });
             return;
         }
 
         if (!templateName.trim()) {
-            alert('Please enter a template name');
+            toast({
+                title: "Template Name Required",
+                description: "Please enter a template name",
+                variant: "destructive",
+            });
             return;
         }
 
@@ -172,14 +202,26 @@ export default function Step2TemplateSelection({
                                 updateData({
                                     created_template_id: result.data.id,
                                 });
-                                alert('Template created successfully! You can now proceed to the next step.');
+                                toast({
+                                    title: "Template Created",
+                                    description: "Template created successfully! You can now proceed to the next step.",
+                                    variant: "success",
+                                });
                             } else {
-                                alert('Failed to save template: ' + (result.message || 'Unknown error'));
+                                toast({
+                                    title: "Template Creation Failed",
+                                    description: result.message || 'Unknown error',
+                                    variant: "destructive",
+                                });
                             }
                         })
                         .catch(error => {
                             console.error('Error saving template:', error);
-                            alert('Error saving template');
+                            toast({
+                                title: "Error",
+                                description: "Error saving template",
+                                variant: "destructive",
+                            });
                         })
                         .finally(() => {
                             setIsSavingTemplate(false);
@@ -188,7 +230,11 @@ export default function Step2TemplateSelection({
             });
         } catch (error) {
             console.error('Error saving template:', error);
-            alert('Error saving template');
+            toast({
+                title: "Error",
+                description: "Error saving template",
+                variant: "destructive",
+            });
             setIsSavingTemplate(false);
         }
     };
@@ -201,7 +247,11 @@ export default function Step2TemplateSelection({
     const handleNext = () => {
         const hasTemplate = data.created_template_id || data.selected_existing_template_id;
         if (!hasTemplate) {
-            alert('Please select or create a template');
+            toast({
+                title: "Template Required",
+                description: "Please select or create a template",
+                variant: "destructive",
+            });
             return;
         }
         onNext();

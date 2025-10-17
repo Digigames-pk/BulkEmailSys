@@ -5,6 +5,7 @@ import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, ArrowRight, Check, Wand2 } from 'lucide-react';
 import Step1CampaignDetails from './Steps/Step1CampaignDetails';
 import Step2TemplateSelection from './Steps/Step2TemplateSelection';
@@ -64,6 +65,7 @@ interface WizardData {
 
 export default function CampaignWizard({ baseTemplates, emailTemplates, groups }: CampaignWizardProps) {
     const { t } = useTranslation();
+    const { toast } = useToast();
     const [currentStep, setCurrentStep] = useState(1);
     const [wizardData, setWizardData] = useState<WizardData>({
         name: '',
@@ -140,16 +142,28 @@ export default function CampaignWizard({ baseTemplates, emailTemplates, groups }
 
             if (result.success) {
                 // Show success message
-                alert(result.message || 'Campaign created successfully!');
+                toast({
+                    title: "Campaign Created",
+                    description: result.message || 'Campaign created successfully!',
+                    variant: "success",
+                });
                 // Redirect to email campaigns page on success
                 router.visit('/email-campaigns');
             } else {
                 console.error('Campaign creation failed:', result);
-                alert('Failed to create campaign: ' + (result.message || 'Unknown error'));
+                toast({
+                    title: "Campaign Creation Failed",
+                    description: result.message || 'Unknown error',
+                    variant: "destructive",
+                });
             }
         } catch (error) {
             console.error('Error creating campaign:', error);
-            alert('Error creating campaign');
+            toast({
+                title: "Error",
+                description: 'Error creating campaign',
+                variant: "destructive",
+            });
         } finally {
             setIsLoading(false);
         }

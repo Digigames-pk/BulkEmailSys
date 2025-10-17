@@ -73,6 +73,16 @@ export default function CsvImportModal({ open, onClose, onImport, processing = f
                         Upload any file to import contacts. The file should have columns: name, email, mobile, gender
                     </div>
 
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <div className="flex items-start gap-2">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                            <div className="text-sm text-blue-800">
+                                <div className="font-medium mb-1">Auto-Group Creation</div>
+                                <p>A new group will be automatically created for this import (e.g., "Group 1", "Group 2", etc.)</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div
                         className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${dragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'
                             }`}
@@ -124,6 +134,7 @@ export default function CsvImportModal({ open, onClose, onImport, processing = f
                                     <li>No file size restrictions</li>
                                     <li>Duplicate emails will be skipped</li>
                                     <li>Empty rows and extra columns are handled automatically</li>
+                                    <li>All imported contacts will be added to a new group automatically</li>
                                 </ul>
                             </div>
                         </div>

@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Contact;
+use App\Models\Group;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -11,14 +12,16 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 class SimpleContactImport implements ToCollection, WithHeadingRow
 {
     public int $userId;
+    public int $groupId;
     public int $totalProcessed = 0;
     public int $totalImported = 0;
     public int $totalSkipped = 0;
     public int $totalFailed = 0;
 
-    public function __construct(int $userId)
+    public function __construct(int $userId, int $groupId)
     {
         $this->userId = $userId;
+        $this->groupId = $groupId;
     }
 
     /**
@@ -83,13 +86,20 @@ class SimpleContactImport implements ToCollection, WithHeadingRow
                 }
 
                 // Create new contact
-                Contact::create([
+                $contact = Contact::create([
                     'email' => $email,
                     'user_id' => $this->userId,
                     'name' => !empty($normalizedRow['name']) ? $normalizedRow['name'] : $this->extractNameFromEmail($email),
                     'mobile' => !empty($normalizedRow['mobile']) ? $normalizedRow['mobile'] : null,
                     'gender' => !empty($normalizedRow['gender']) ? $normalizedRow['gender'] : null,
                 ]);
+
+                // Assign contact to the group
+                $group = Group::find($this->groupId);
+                if ($group) {
+                    $group->contacts()->attach($contact->id);
+                    Log::info("Assigned contact {$email} to group {$group->name}");
+                }
 
                 $this->totalImported++;
                 Log::info("Imported contact: {$email}");

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 interface ApiTokenManagerProps {
     onTokenSet?: (token: string) => void;
 }
 
 const ApiTokenManager: React.FC<ApiTokenManagerProps> = ({ onTokenSet }) => {
+    const { toast } = useToast();
     const [token, setToken] = useState('');
     const [isVisible, setIsVisible] = useState(false);
 
@@ -20,9 +22,17 @@ const ApiTokenManager: React.FC<ApiTokenManagerProps> = ({ onTokenSet }) => {
         if (token.trim()) {
             localStorage.setItem('api_token', token.trim());
             onTokenSet?.(token.trim());
-            alert('API token saved successfully!');
+            toast({
+                title: "Token Saved",
+                description: "API token saved successfully!",
+                variant: "success",
+            });
         } else {
-            alert('Please enter a valid API token.');
+            toast({
+                title: "Invalid Token",
+                description: "Please enter a valid API token.",
+                variant: "destructive",
+            });
         }
     };
 
@@ -31,7 +41,11 @@ const ApiTokenManager: React.FC<ApiTokenManagerProps> = ({ onTokenSet }) => {
         sessionStorage.removeItem('api_token');
         setToken('');
         onTokenSet?.('');
-        alert('API token cleared.');
+        toast({
+            title: "Token Cleared",
+            description: "API token cleared.",
+            variant: "success",
+        });
     };
 
     const generateTestToken = async () => {
@@ -54,12 +68,24 @@ const ApiTokenManager: React.FC<ApiTokenManagerProps> = ({ onTokenSet }) => {
                 setToken(result.token);
                 localStorage.setItem('api_token', result.token);
                 onTokenSet?.(result.token);
-                alert('Token generated and saved successfully!');
+                toast({
+                    title: "Token Generated",
+                    description: "Token generated and saved successfully!",
+                    variant: "success",
+                });
             } else {
-                alert(result.message || 'Error generating token.');
+                toast({
+                    title: "Token Generation Failed",
+                    description: result.message || 'Error generating token.',
+                    variant: "destructive",
+                });
             }
         } catch (error) {
-            alert('Error generating token. Please try again.');
+            toast({
+                title: "Error",
+                description: "Error generating token. Please try again.",
+                variant: "destructive",
+            });
         }
     };
 

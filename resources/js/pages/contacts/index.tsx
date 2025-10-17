@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Head, router, useForm, usePage } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import Datatable from "@/components/Datatable";
 import AppLayout from "@/layouts/app-layout";
 import { type BreadcrumbItem } from "@/types";
@@ -18,6 +19,7 @@ export default function Index({ contacts, filters }: any) {
     const [deletingId, setDeletingId] = useState<number | null>(null);
 
     const form = useForm({});
+    const { toast } = useToast();
 
     useEffect(() => {
         const timeout = setTimeout(() => {
@@ -73,7 +75,14 @@ export default function Index({ contacts, filters }: any) {
             .then(data => {
                 if (data.success) {
                     setShowImportDialog(false);
-                    alert('Success: ' + data.message);
+                    const message = data.group
+                        ? `${data.message}\n\nGroup created: ${data.group.name}\nDescription: ${data.group.description}`
+                        : data.message;
+                    toast({
+                        title: "Import Successful",
+                        description: message,
+                        variant: "success",
+                    });
                     // Reload the page to show updated contacts
                     window.location.reload();
                 } else {
@@ -82,7 +91,11 @@ export default function Index({ contacts, filters }: any) {
             })
             .catch(error => {
                 console.error('Import failed:', error);
-                alert('Import failed: ' + error.message);
+                toast({
+                    title: "Import Failed",
+                    description: error.message,
+                    variant: "destructive",
+                });
             });
     };
 

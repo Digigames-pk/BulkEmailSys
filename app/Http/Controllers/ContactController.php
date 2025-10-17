@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use App\Models\Contact;
+use App\Models\Group;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Log;
@@ -112,21 +113,41 @@ class ContactController extends Controller
                 ], 400);
             }
 
+            // Create a group for this import
+            $groupName = $this->generateGroupName(Auth::id());
+            $group = Group::create([
+                'name' => $groupName,
+                'description' => 'Auto-created group from CSV import: ' . $file->getClientOriginalName(),
+                'user_id' => Auth::id(),
+            ]);
+
+            Log::info('Created group for CSV import', [
+                'group_id' => $group->id,
+                'group_name' => $group->name,
+                'user_id' => Auth::id(),
+                'filename' => $file->getClientOriginalName(),
+            ]);
+
             $fileName = 'contacts_import_' . time() . '_' . Auth::id() . '.csv';
             $filePath = $file->storeAs('temp', $fileName, 'public');
 
             // Set longer timeout for large files
             set_time_limit(300); // 5 minutes
 
-            // Import contacts using SimpleContactImport
-            Excel::import(new SimpleContactImport(Auth::id()), storage_path('app/public/' . $filePath));
+            // Import contacts using SimpleContactImport with group
+            Excel::import(new SimpleContactImport(Auth::id(), $group->id), storage_path('app/public/' . $filePath));
 
             // Clean up temporary file
             Storage::disk('public')->delete($filePath);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Contacts imported successfully!'
+                'message' => "Contacts imported successfully! Created group: {$group->name}",
+                'group' => [
+                    'id' => $group->id,
+                    'name' => $group->name,
+                    'description' => $group->description,
+                ]
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
@@ -143,5 +164,24 @@ class ContactController extends Controller
                 'message' => 'Failed to import contacts: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Generate a unique group name for the user
+     */
+    private function generateGroupName(int $userId): string
+    {
+        $baseName = 'Group';
+        $counter = 1;
+
+        do {
+            $groupName = $baseName . ' ' . $counter;
+            $exists = Group::where('user_id', $userId)
+                ->where('name', $groupName)
+                ->exists();
+            $counter++;
+        } while ($exists);
+
+        return $groupName;
     }
 }

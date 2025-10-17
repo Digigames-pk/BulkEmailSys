@@ -1,6 +1,7 @@
 import React from 'react';
 import { router, Head, Link } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
+import { useToast } from '@/hooks/use-toast';
 import '../../../css/emailtemplate.css';
 
 interface EmailTemplate {
@@ -20,6 +21,7 @@ interface Props {
 }
 
 const Index = ({ emailTemplates }: Props) => {
+    const { toast } = useToast();
 
     const previewTemplate = (id: number) => {
         const url = `/email-template/${id}`;
@@ -27,7 +29,11 @@ const Index = ({ emailTemplates }: Props) => {
         if (win) {
             win.focus();
         } else {
-            alert('Popup blocked! Please allow popups for this site.');
+            toast({
+                title: "Popup Blocked",
+                description: "Please allow popups for this site.",
+                variant: "destructive",
+            });
         }
     };
 

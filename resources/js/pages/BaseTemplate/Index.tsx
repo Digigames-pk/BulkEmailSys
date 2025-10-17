@@ -1,6 +1,7 @@
 import React from 'react';
 import { Head, Link, useForm } from "@inertiajs/react";
 import AppLayout from '@/layouts/app-layout';
+import { useToast } from '@/hooks/use-toast';
 import '../../../css/emailtemplate.css';
 
 interface BaseTemplate {
@@ -18,6 +19,7 @@ interface Props {
 }
 
 const Index = ({ baseTemplates }: Props) => {
+    const { toast } = useToast();
     const { post } = useForm({});
 
     const useTemplate = (id: number) => {
@@ -30,7 +32,11 @@ const Index = ({ baseTemplates }: Props) => {
         if (win) {
             win.focus();
         } else {
-            alert("Popup blocked! Please allow popups for this site.");
+            toast({
+                title: "Popup Blocked",
+                description: "Please allow popups for this site.",
+                variant: "destructive",
+            });
         }
     };
 
