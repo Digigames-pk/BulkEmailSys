@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Head, router, useForm, usePage } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useGlobalErrorHandler } from "@/hooks/useGlobalErrorHandler";
 import Datatable from "@/components/Datatable";
 import AppLayout from "@/layouts/app-layout";
 import { type BreadcrumbItem } from "@/types";
@@ -21,7 +20,6 @@ export default function Index({ contacts, filters }: any) {
 
     const form = useForm({});
     const { toast } = useToast();
-    const { handleApiError } = useGlobalErrorHandler();
 
     useEffect(() => {
         const timeout = setTimeout(() => {

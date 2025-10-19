@@ -49,25 +49,6 @@ class EmailTemplateController extends Controller
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Check template limit
-        $user = Auth::user();
-        $limits = $user->getSubscriptionLimits();
-        $currentTemplateCount = $user->emailTemplates()->count();
-
-        if ($limits['templates'] > 0 && $currentTemplateCount >= $limits['templates']) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'error' => 'Template limit reached',
-                    'message' => "You've reached your limit of {$limits['templates']} templates. Please upgrade your plan to create more templates.",
-                    'limit_reached' => true,
-                    'limit_type' => 'templates',
-                    'current_usage' => $currentTemplateCount,
-                    'limit' => $limits['templates']
-                ], 403);
-            }
-
-            return redirect()->back()->with('error', "You've reached your limit of {$limits['templates']} templates. Please upgrade your plan to create more templates.");
-        }
 
         $data = $request->all();
         $data['user_id'] = Auth::id();
@@ -202,33 +183,8 @@ class EmailTemplateController extends Controller
     {
         $baseTemplates = BaseTemplate::all();
 
-        // Get user's subscription data for limit checking
-        $user = Auth::user();
-        $limits = $user->getSubscriptionLimits();
-        $usage = [
-            'templates' => $user->emailTemplates()->count(),
-            'contacts' => $user->contacts()->count(),
-            'emails_this_month' => $user->emailLogs()
-                ->whereMonth('email_logs.created_at', now()->month)
-                ->whereYear('email_logs.created_at', now()->year)
-                ->count(),
-        ];
-
-        // Get available subscription plans for upgrade modal
-        $plans = \App\Models\SubscriptionPlan::where('is_active', true)
-            ->orderBy('price')
-            ->get()
-            ->map(fn($plan) => [
-                ...$plan->toArray(),
-                'price' => (float) $plan->price,
-            ]);
-
         return Inertia::render('BaseTemplate/Index', [
             'baseTemplates' => $baseTemplates,
-            'plans' => $plans,
-            'currentSubscription' => $user->currentSubscription(),
-            'limits' => $limits,
-            'usage' => $usage,
         ]);
     }
 
@@ -237,33 +193,8 @@ class EmailTemplateController extends Controller
      */
     public function viewBaseTemplate(BaseTemplate $baseTemplate)
     {
-        // Get user's subscription data for limit checking
-        $user = Auth::user();
-        $limits = $user->getSubscriptionLimits();
-        $usage = [
-            'templates' => $user->emailTemplates()->count(),
-            'contacts' => $user->contacts()->count(),
-            'emails_this_month' => $user->emailLogs()
-                ->whereMonth('email_logs.created_at', now()->month)
-                ->whereYear('email_logs.created_at', now()->year)
-                ->count(),
-        ];
-
-        // Get available subscription plans for upgrade modal
-        $plans = \App\Models\SubscriptionPlan::where('is_active', true)
-            ->orderBy('price')
-            ->get()
-            ->map(fn($plan) => [
-                ...$plan->toArray(),
-                'price' => (float) $plan->price,
-            ]);
-
         return Inertia::render('BaseTemplate/Show', [
             'baseTemplate' => $baseTemplate,
-            'plans' => $plans,
-            'currentSubscription' => $user->currentSubscription(),
-            'limits' => $limits,
-            'usage' => $usage,
         ]);
     }
 
@@ -272,33 +203,6 @@ class EmailTemplateController extends Controller
      */
     public function setEmailTemplate(Request $request, BaseTemplate $baseTemplate)
     {
-        // Check template limit
-        $user = Auth::user();
-        $limits = $user->getSubscriptionLimits();
-        $currentTemplateCount = $user->emailTemplates()->count();
-
-        if ($limits['templates'] > 0 && $currentTemplateCount >= $limits['templates']) {
-            Log::info('Template limit reached in setEmailTemplate', [
-                'user_id' => $user->id,
-                'current_count' => $currentTemplateCount,
-                'limit' => $limits['templates'],
-                'expects_json' => $request->expectsJson()
-            ]);
-
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'error' => 'Template limit reached',
-                    'message' => "You've reached your limit of {$limits['templates']} templates. Please upgrade your plan to create more templates.",
-                    'limit_reached' => true,
-                    'limit_type' => 'templates',
-                    'current_usage' => $currentTemplateCount,
-                    'limit' => $limits['templates']
-                ], 403);
-            }
-
-            return redirect()->back()->with('error', "You've reached your limit of {$limits['templates']} templates. Please upgrade your plan to create more templates.");
-        }
-
         $data = [
             'user_id' => Auth::id(),
             'name' => $baseTemplate->name,

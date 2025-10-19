@@ -1,9 +1,10 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { formatPrice } from '@/lib/price-utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Check, Star, Zap } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 
@@ -36,6 +37,8 @@ interface Props {
 export default function Index({ plans, currentSubscription }: Props) {
     const { post, processing } = useForm();
     const [loadingPlanId, setLoadingPlanId] = useState<number | null>(null);
+    const { props } = usePage();
+    const errorMessage = (props as any).flash?.error;
 
     const handleSubscribe = async (planId: number) => {
         setLoadingPlanId(planId);
@@ -77,6 +80,15 @@ export default function Index({ plans, currentSubscription }: Props) {
             <Head title="Subscription Plans" />
 
             <div className="p-6 space-y-8">
+                {/* Error Message */}
+                {errorMessage && (
+                    <Alert className="max-w-2xl mx-auto">
+                        <AlertDescription>
+                            {errorMessage}
+                        </AlertDescription>
+                    </Alert>
+                )}
+
                 <div className="text-center space-y-4">
                     <h1 className="text-4xl font-bold">Choose Your Plan</h1>
                     <p className="text-xl text-muted-foreground max-w-2xl mx-auto">

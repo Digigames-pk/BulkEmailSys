@@ -2,7 +2,6 @@ import React from 'react';
 import { router, Head, Link } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { useToast } from '@/hooks/use-toast';
-import { useGlobalErrorHandler } from '@/hooks/useGlobalErrorHandler';
 import '../../../css/emailtemplate.css';
 
 interface EmailTemplate {
@@ -23,7 +22,6 @@ interface Props {
 
 const Index = ({ emailTemplates }: Props) => {
     const { toast } = useToast();
-    const { handleApiError } = useGlobalErrorHandler();
 
     const previewTemplate = (id: number) => {
         const url = `/email-template/${id}`;

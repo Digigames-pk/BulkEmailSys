@@ -36,20 +36,8 @@ class SimpleContactImport implements ToCollection, WithHeadingRow
             'first_row' => $collection->first(),
         ]);
 
-        // Check contact limit before starting import
-        $user = User::find($this->userId);
-        $limits = $user->getSubscriptionLimits();
-        $currentContactCount = $user->contacts()->count();
-
         foreach ($collection as $row) {
             $this->totalProcessed++;
-
-            // Check contact limit for each new contact
-            if ($limits['contacts'] > 0 && $currentContactCount >= $limits['contacts']) {
-                $this->totalFailed++;
-                Log::warning("Skipped row: Contact limit reached for user {$this->userId}");
-                continue;
-            }
 
             // Normalize column names to lowercase for case-insensitive access
             $normalizedRow = [];
@@ -115,7 +103,6 @@ class SimpleContactImport implements ToCollection, WithHeadingRow
                 }
 
                 $this->totalImported++;
-                $currentContactCount++; // Increment counter for limit checking
                 Log::info("Imported contact: {$email}");
             } catch (\Exception $e) {
                 $this->totalFailed++;

@@ -85,6 +85,12 @@ const Create = () => {
                     // Use utility function for redirect after API call
                     redirectAfterApiCall('/email-template');
                 } else {
+                    // Check if it's a limit reached error
+                    if (result.limit_reached && result.redirect_url) {
+                        window.location.href = result.redirect_url;
+                        return;
+                    }
+
                     // Handle API errors
                     if (result.errors) {
                         Object.keys(result.errors).forEach(key => {

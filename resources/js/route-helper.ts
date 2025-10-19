@@ -8,7 +8,6 @@ import {
 } from './routes';
 import {
     index as emailTemplateIndex,
-    store as emailTemplateStore,
     show as emailTemplateShow,
     update as emailTemplateUpdate,
     destroy as emailTemplateDestroy
@@ -61,7 +60,6 @@ const routeMap: Record<string, any> = {
 
     // Email Template routes
     'email-template.index': emailTemplateIndex,
-    'email-template.store': emailTemplateStore,
     'email-template.show': emailTemplateShow,
     'email-template.update': emailTemplateUpdate,
     'email-template.destroy': emailTemplateDestroy,

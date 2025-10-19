@@ -39,42 +39,10 @@ interface Group {
     contacts_count: number;
 }
 
-interface SubscriptionPlan {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    currency: string;
-    interval: string;
-    max_templates: number;
-    max_contacts: number;
-    max_emails_per_month: number;
-    is_featured: boolean;
-    features: string[];
-}
-
-interface UserSubscription {
-    id: number;
-    subscription_plan_id: number;
-    subscription_plan: SubscriptionPlan;
-}
-
 interface CampaignWizardProps {
     baseTemplates: BaseTemplate[];
     emailTemplates: EmailTemplate[];
     groups: Group[];
-    limits: {
-        templates: number;
-        contacts: number;
-        emails_per_month: number;
-    };
-    usage: {
-        templates: number;
-        contacts: number;
-        emails_this_month: number;
-    };
-    plans: SubscriptionPlan[];
-    currentSubscription: UserSubscription | null;
 }
 
 interface WizardData {
@@ -99,11 +67,7 @@ interface WizardData {
 export default function CampaignWizard({
     baseTemplates,
     emailTemplates,
-    groups,
-    limits,
-    usage,
-    plans,
-    currentSubscription
+    groups
 }: CampaignWizardProps) {
     const { t } = useTranslation();
     const { toast } = useToast();
@@ -227,10 +191,6 @@ export default function CampaignWizard({
                         updateData={updateWizardData}
                         baseTemplates={baseTemplates}
                         emailTemplates={emailTemplates}
-                        limits={limits}
-                        usage={usage}
-                        plans={plans}
-                        currentSubscription={currentSubscription}
                         onNext={nextStep}
                         onPrev={prevStep}
                     />

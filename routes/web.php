@@ -41,15 +41,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Base Template routes
     Route::get('base-template', [EmailTemplateController::class, 'baseTemplate'])->name('base.template');
     Route::get('base-template/{baseTemplate}', [EmailTemplateController::class, 'viewBaseTemplate'])->name('base.template.view');
-    Route::post('use-template/{baseTemplate}', [EmailTemplateController::class, 'setEmailTemplate'])->name('use.template');
+    Route::post('use-template/{baseTemplate}', [EmailTemplateController::class, 'setEmailTemplate'])->name('use.template')->middleware('subscription.limits:templates');
 
     // Email Template routes
     Route::resource('email-template', EmailTemplateController::class);
     Route::post('email-template/cleanup-images', [EmailTemplateController::class, 'cleanupOrphanedImages'])->name('email-template.cleanup-images');
+    Route::post('email-template', [EmailTemplateController::class, 'store'])->middleware('subscription.limits:templates');
 
     // Contacts routes
     Route::resource('contacts', ContactController::class);
-    Route::post('contacts/import-csv', [ContactController::class, 'importCsv'])->name('contacts.import-csv');
+    Route::post('contacts/import-csv', [ContactController::class, 'importCsv'])->name('contacts.import-csv')->middleware('subscription.limits:contacts');
+    Route::post('contacts', [ContactController::class, 'store'])->middleware('subscription.limits:contacts');
 
     // Groups routes
     Route::resource('groups', GroupController::class);
@@ -75,17 +77,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Campaign Wizard routes
     Route::get('campaign-wizard', [CampaignWizardController::class, 'index'])->name('campaign-wizard.index');
-    Route::post('campaign-wizard/create-template-from-base', [CampaignWizardController::class, 'createTemplateFromBase'])->name('campaign-wizard.create-template-from-base');
-    Route::post('campaign-wizard/create-template-from-scratch', [CampaignWizardController::class, 'createTemplateFromScratch'])->name('campaign-wizard.create-template-from-scratch');
-    Route::post('campaign-wizard/create-campaign', [CampaignWizardController::class, 'createCampaign'])->name('campaign-wizard.create-campaign');
+    Route::post('campaign-wizard/create-template-from-base', [CampaignWizardController::class, 'createTemplateFromBase'])->name('campaign-wizard.create-template-from-base')->middleware('subscription.limits:templates');
+    Route::post('campaign-wizard/create-template-from-scratch', [CampaignWizardController::class, 'createTemplateFromScratch'])->name('campaign-wizard.create-template-from-scratch')->middleware('subscription.limits:templates');
+    Route::post('campaign-wizard/create-campaign', [CampaignWizardController::class, 'createCampaign'])->name('campaign-wizard.create-campaign')->middleware('subscription.limits:emails');
 
     // Email Template API routes (for wizard)
     Route::apiResource('api/email-templates', ApiEmailTemplateController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
     Route::post('api/email-templates/{emailTemplate}', [ApiEmailTemplateController::class, 'update']);
+    Route::post('api/email-templates', [ApiEmailTemplateController::class, 'store'])->middleware('subscription.limits:templates');
 
     // Email Campaign routes
     Route::resource('email-campaigns', EmailCampaignController::class);
-    Route::post('email-campaigns/{emailCampaign}/send', [EmailCampaignController::class, 'send'])->name('email-campaigns.send');
+    Route::post('email-campaigns/{emailCampaign}/send', [EmailCampaignController::class, 'send'])->name('email-campaigns.send')->middleware('subscription.limits:emails');
 
     // Debug route
     Route::get('debug/contacts', function () {
