@@ -22,10 +22,35 @@ class CampaignWizardController extends Controller
         $emailTemplates = EmailTemplate::where('user_id', Auth::id())->get();
         $groups = Group::where('user_id', Auth::id())->withCount('contacts')->get();
 
+        // Get user's subscription limits and usage
+        $user = Auth::user();
+        $limits = $user->getSubscriptionLimits();
+        $usage = [
+            'templates' => $user->emailTemplates()->count(),
+            'contacts' => $user->contacts()->count(),
+            'emails_this_month' => $user->emailLogs()
+                ->whereMonth('email_logs.created_at', now()->month)
+                ->whereYear('email_logs.created_at', now()->year)
+                ->count(),
+        ];
+
+        // Get available subscription plans for upgrade modal
+        $plans = \App\Models\SubscriptionPlan::where('is_active', true)
+            ->orderBy('price')
+            ->get()
+            ->map(fn($plan) => [
+                ...$plan->toArray(),
+                'price' => (float) $plan->price,
+            ]);
+
         return Inertia::render('CampaignWizard/Index', [
             'baseTemplates' => $baseTemplates,
             'emailTemplates' => $emailTemplates,
             'groups' => $groups,
+            'limits' => $limits,
+            'usage' => $usage,
+            'plans' => $plans,
+            'currentSubscription' => $user->currentSubscription(),
         ]);
     }
 
@@ -39,6 +64,22 @@ class CampaignWizardController extends Controller
             'name' => 'required|string|max:255',
             'email_subject' => 'nullable|string|max:255',
         ]);
+
+        // Check template limit
+        $user = Auth::user();
+        $limits = $user->getSubscriptionLimits();
+        $currentTemplateCount = $user->emailTemplates()->count();
+
+        if ($limits['templates'] > 0 && $currentTemplateCount >= $limits['templates']) {
+            return response()->json([
+                'error' => 'Template limit reached',
+                'message' => "You've reached your limit of {$limits['templates']} templates. Please upgrade your plan to create more templates.",
+                'limit_reached' => true,
+                'limit_type' => 'templates',
+                'current_usage' => $currentTemplateCount,
+                'limit' => $limits['templates']
+            ], 403);
+        }
 
         $baseTemplate = BaseTemplate::findOrFail($request->base_template_id);
 
@@ -98,6 +139,31 @@ class CampaignWizardController extends Controller
             'group_id' => 'required|exists:groups,id',
             'scheduled_at' => 'nullable|date',
         ]);
+
+        // Check email limit before creating campaign
+        $user = Auth::user();
+        $limits = $user->getSubscriptionLimits();
+        $group = Group::find($request->group_id);
+        $recipientCount = $group->contacts()->count();
+
+        // Get current month's email usage
+        $currentMonthEmails = $user->emailLogs()
+            ->whereMonth('email_logs.created_at', now()->month)
+            ->whereYear('email_logs.created_at', now()->year)
+            ->count();
+
+        // Check if sending this campaign would exceed the limit
+        if ($limits['emails_per_month'] > 0 && ($currentMonthEmails + $recipientCount) > $limits['emails_per_month']) {
+            return response()->json([
+                'error' => 'Email limit would be exceeded',
+                'message' => "Sending this campaign would exceed your monthly limit of {$limits['emails_per_month']} emails. You have {$currentMonthEmails} emails remaining this month, but this campaign would send {$recipientCount} emails.",
+                'limit_reached' => true,
+                'limit_type' => 'emails',
+                'current_usage' => $currentMonthEmails,
+                'limit' => $limits['emails_per_month'],
+                'campaign_recipients' => $recipientCount
+            ], 403);
+        }
 
         $campaign = EmailCampaign::create([
             'name' => $request->name,

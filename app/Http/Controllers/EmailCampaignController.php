@@ -242,6 +242,23 @@ class EmailCampaignController extends Controller
                 ->with('error', 'Campaign cannot be sent in its current status.');
         }
 
+        // Check email limit before sending
+        $user = Auth::user();
+        $limits = $user->getSubscriptionLimits();
+        $recipientCount = $emailCampaign->total_recipients;
+
+        // Get current month's email usage
+        $currentMonthEmails = $user->emailLogs()
+            ->whereMonth('email_logs.created_at', now()->month)
+            ->whereYear('email_logs.created_at', now()->year)
+            ->count();
+
+        // Check if sending this campaign would exceed the limit
+        if ($limits['emails_per_month'] > 0 && ($currentMonthEmails + $recipientCount) > $limits['emails_per_month']) {
+            return redirect()->route('email-campaigns.index')
+                ->with('error', "Sending this campaign would exceed your monthly limit of {$limits['emails_per_month']} emails. You have " . ($limits['emails_per_month'] - $currentMonthEmails) . " emails remaining this month, but this campaign would send {$recipientCount} emails.");
+        }
+
         $this->sendCampaign($emailCampaign);
 
         return redirect()->route('email-campaigns.index')

@@ -13,7 +13,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Mail, Users, Send, Wand2 } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Mail, Users, Send, Wand2, CreditCard, Settings } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -61,6 +61,21 @@ const mainNavItems: NavItem[] = [
         title: 'Logs',
         href: '/logs',
         icon: Folder,
+    },
+    {
+        title: 'My Subscription',
+        href: '/subscriptions/dashboard',
+        icon: CreditCard,
+    },
+    {
+        title: 'Upgrade Plan',
+        href: '/subscriptions',
+        icon: Settings,
+    },
+    {
+        title: 'Manage Plans',
+        href: '/plans',
+        icon: Settings,
     },
 ];
 

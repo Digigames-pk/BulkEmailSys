@@ -2,6 +2,7 @@ import React from 'react';
 import { router, Head, Link } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { useToast } from '@/hooks/use-toast';
+import { useGlobalErrorHandler } from '@/hooks/useGlobalErrorHandler';
 import '../../../css/emailtemplate.css';
 
 interface EmailTemplate {
@@ -22,6 +23,7 @@ interface Props {
 
 const Index = ({ emailTemplates }: Props) => {
     const { toast } = useToast();
+    const { handleApiError } = useGlobalErrorHandler();
 
     const previewTemplate = (id: number) => {
         const url = `/email-template/${id}`;
@@ -43,7 +45,24 @@ const Index = ({ emailTemplates }: Props) => {
 
     const deleteTemplate = (id: number) => {
         if (confirm(`Are you sure you want to delete template #${id}? This action cannot be undone.`)) {
-            router.delete(`/email-template/${id}`);
+            router.delete(`/email-template/${id}`, {
+                onError: (errors) => {
+                    // Check if it's a limit reached error
+                    if (errors.limit_reached && errors.limit_type) {
+                        // The global error handler will show the modal
+                        return;
+                    }
+
+                    // Handle other errors
+                    if (errors.message) {
+                        toast({
+                            title: "Error",
+                            description: errors.message,
+                            variant: "destructive",
+                        });
+                    }
+                }
+            });
         }
     };
 

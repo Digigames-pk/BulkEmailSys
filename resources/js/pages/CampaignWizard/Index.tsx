@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, ArrowRight, Check, Wand2 } from 'lucide-react';
+import { redirectAfterApiCall } from '@/utils/redirect';
 import Step1CampaignDetails from './Steps/Step1CampaignDetails';
 import Step2TemplateSelection from './Steps/Step2TemplateSelection';
 import Step3RecipientsSelection from './Steps/Step3RecipientsSelection';
@@ -38,10 +39,42 @@ interface Group {
     contacts_count: number;
 }
 
+interface SubscriptionPlan {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    currency: string;
+    interval: string;
+    max_templates: number;
+    max_contacts: number;
+    max_emails_per_month: number;
+    is_featured: boolean;
+    features: string[];
+}
+
+interface UserSubscription {
+    id: number;
+    subscription_plan_id: number;
+    subscription_plan: SubscriptionPlan;
+}
+
 interface CampaignWizardProps {
     baseTemplates: BaseTemplate[];
     emailTemplates: EmailTemplate[];
     groups: Group[];
+    limits: {
+        templates: number;
+        contacts: number;
+        emails_per_month: number;
+    };
+    usage: {
+        templates: number;
+        contacts: number;
+        emails_this_month: number;
+    };
+    plans: SubscriptionPlan[];
+    currentSubscription: UserSubscription | null;
 }
 
 interface WizardData {
@@ -63,7 +96,15 @@ interface WizardData {
     group_id: string;
 }
 
-export default function CampaignWizard({ baseTemplates, emailTemplates, groups }: CampaignWizardProps) {
+export default function CampaignWizard({
+    baseTemplates,
+    emailTemplates,
+    groups,
+    limits,
+    usage,
+    plans,
+    currentSubscription
+}: CampaignWizardProps) {
     const { t } = useTranslation();
     const { toast } = useToast();
     const [currentStep, setCurrentStep] = useState(1);
@@ -147,8 +188,8 @@ export default function CampaignWizard({ baseTemplates, emailTemplates, groups }
                     description: result.message || 'Campaign created successfully!',
                     variant: "success",
                 });
-                // Redirect to email campaigns page on success
-                router.visit('/email-campaigns');
+                // Use utility function for redirect after API call
+                redirectAfterApiCall('/email-campaigns');
             } else {
                 console.error('Campaign creation failed:', result);
                 toast({
@@ -186,6 +227,10 @@ export default function CampaignWizard({ baseTemplates, emailTemplates, groups }
                         updateData={updateWizardData}
                         baseTemplates={baseTemplates}
                         emailTemplates={emailTemplates}
+                        limits={limits}
+                        usage={usage}
+                        plans={plans}
+                        currentSubscription={currentSubscription}
                         onNext={nextStep}
                         onPrev={prevStep}
                     />

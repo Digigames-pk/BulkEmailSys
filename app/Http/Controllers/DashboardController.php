@@ -84,6 +84,31 @@ class DashboardController extends Controller
                 'created_at' => $l->created_at?->toIso8601String(),
             ]);
 
+        // Get subscription data
+        $currentSubscription = $user->currentSubscription();
+        $subscriptionLimits = $user->getSubscriptionLimits();
+
+        // Get current month email count
+        $emailsThisMonth = (clone $logsQuery)
+            ->whereMonth('email_logs.created_at', now()->month)
+            ->whereYear('email_logs.created_at', now()->year)
+            ->count();
+
+        // Format subscription data if it exists
+        $formattedSubscription = null;
+        if ($currentSubscription) {
+            $formattedSubscription = [
+                'id' => $currentSubscription->id,
+                'subscription_plan' => [
+                    'name' => $currentSubscription->subscriptionPlan->name,
+                    'price' => (float) $currentSubscription->subscriptionPlan->price,
+                    'currency' => $currentSubscription->subscriptionPlan->currency,
+                    'interval' => $currentSubscription->subscriptionPlan->interval,
+                ],
+                'status' => $currentSubscription->status,
+            ];
+        }
+
         return Inertia::render('dashboard', [
             'stats' => [
                 'contacts' => $contactsCount,
@@ -97,6 +122,15 @@ class DashboardController extends Controller
             'timeseries' => $timeseries,
             'topTemplates' => $topTemplates,
             'recentEmails' => $recentEmails,
+            'subscription' => [
+                'current' => $formattedSubscription,
+                'limits' => $subscriptionLimits,
+                'usage' => [
+                    'templates' => $templatesCount,
+                    'contacts' => $contactsCount,
+                    'emails_this_month' => $emailsThisMonth,
+                ],
+            ],
         ]);
     }
 }

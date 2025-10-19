@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             BaseTemplateSeeder::class,
+            SubscriptionPlanSeeder::class,
         ]);
     }
 }

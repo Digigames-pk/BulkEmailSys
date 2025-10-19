@@ -3,6 +3,7 @@
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\ContactController;
@@ -11,6 +12,9 @@ use App\Http\Controllers\GroupController;
 use App\Http\Controllers\CampaignWizardController;
 use App\Http\Controllers\EmailCampaignController;
 use App\Http\Controllers\Api\EmailTemplateController as ApiEmailTemplateController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\SubscriptionPlanController;
+use App\Http\Controllers\WebhookController;
 use App\Models\Group;
 
 Route::get('/', function () {
@@ -41,6 +45,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Email Template routes
     Route::resource('email-template', EmailTemplateController::class);
+    Route::post('email-template/cleanup-images', [EmailTemplateController::class, 'cleanupOrphanedImages'])->name('email-template.cleanup-images');
 
     // Contacts routes
     Route::resource('contacts', ContactController::class);
@@ -112,8 +117,36 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Logs
     Route::get('logs', [LogsController::class, 'index'])->name('logs.index');
+
+    // Subscription routes
+    Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
+    Route::get('subscriptions/dashboard', [SubscriptionController::class, 'dashboard'])->name('subscriptions.dashboard');
+    Route::post('subscriptions/checkout', [SubscriptionController::class, 'checkout'])->name('subscriptions.checkout');
+    Route::get('subscriptions/success', [SubscriptionController::class, 'success'])->name('subscriptions.success');
+    Route::get('subscriptions/cancel', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+    Route::delete('subscriptions', [SubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
+
+    // Subscription plan management routes
+    Route::get('/plans', [SubscriptionPlanController::class, 'index'])->name('plans.index');
+    Route::get('/plans/create', [SubscriptionPlanController::class, 'create'])->name('plans.create');
+    Route::post('/plans', [SubscriptionPlanController::class, 'store'])->name('plans.store');
+    Route::get('/plans/{subscriptionPlan}', [SubscriptionPlanController::class, 'show'])->name('plans.show');
+    Route::get('/plans/{subscriptionPlan}/edit', [SubscriptionPlanController::class, 'edit'])->name('plans.edit');
+    Route::put('/plans/{subscriptionPlan}', [SubscriptionPlanController::class, 'update'])->name('plans.update');
+    Route::delete('/plans/{subscriptionPlan}', [SubscriptionPlanController::class, 'destroy'])->name('plans.destroy');
+
+    // Test routes
+    Route::get('/test-modal', function () {
+        return Inertia::render('TestModal');
+    })->name('test.modal');
+
+    Route::get('/test-email-api', function () {
+        return Inertia::render('TestEmailTemplateApi');
+    })->name('test.email-api');
 });
 
+// Webhook routes (no auth required)
+Route::post('/webhooks/stripe', [WebhookController::class, 'stripe']);
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

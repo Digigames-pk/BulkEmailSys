@@ -2,6 +2,7 @@ import React from 'react';
 import { Head, Link, useForm } from "@inertiajs/react";
 import AppLayout from '@/layouts/app-layout';
 import { useToast } from '@/hooks/use-toast';
+import { useUpgradeModal } from '@/contexts/UpgradeModalContext';
 import '../../../css/emailtemplate.css';
 
 interface BaseTemplate {
@@ -16,14 +17,54 @@ interface BaseTemplate {
 
 interface Props {
     baseTemplates: BaseTemplate[];
+    plans?: any[];
+    currentSubscription?: any;
+    limits?: {
+        templates: number;
+        contacts: number;
+        emails_per_month: number;
+    };
+    usage?: {
+        templates: number;
+        contacts: number;
+        emails_this_month: number;
+    };
 }
 
-const Index = ({ baseTemplates }: Props) => {
+const Index = ({ baseTemplates, plans, currentSubscription, limits, usage }: Props) => {
     const { toast } = useToast();
     const { post } = useForm({});
+    const { showUpgradeModal } = useUpgradeModal();
 
     const useTemplate = (id: number) => {
-        post(`/use-template/${id}`);
+        post(`/use-template/${id}`, {
+            onError: (errors) => {
+                console.log('Error received:', errors); // Debug log
+
+                // Check if it's a limit reached error
+                if (errors.limit_reached && errors.limit_type) {
+                    console.log('Showing upgrade modal for:', errors.limit_type); // Debug log
+                    // Show upgrade modal manually
+                    showUpgradeModal(
+                        errors.limit_type,
+                        errors.current_usage || 0,
+                        errors.limit || 0,
+                        plans || [],
+                        currentSubscription || null
+                    );
+                    return;
+                }
+
+                // Handle other errors
+                if (errors.message) {
+                    toast({
+                        title: "Error",
+                        description: errors.message,
+                        variant: "destructive",
+                    });
+                }
+            }
+        });
     };
 
     const previewTemplate = (id: number) => {

@@ -8,20 +8,17 @@ import {
 } from './routes';
 import {
     index as emailTemplateIndex,
-    create as emailTemplateCreate,
     store as emailTemplateStore,
     show as emailTemplateShow,
-    edit as emailTemplateEdit,
     update as emailTemplateUpdate,
     destroy as emailTemplateDestroy
-} from './routes/email-template';
+} from './routes/email-templates';
 import {
     template as baseTemplateIndex
 } from './routes/base';
 import {
     view as baseTemplateView
 } from './routes/base/template';
-import useRoutes from './routes/use';
 import {
     index as groupsIndex,
     create as groupsCreate,
@@ -44,6 +41,14 @@ import {
     destroy as emailCampaignsDestroy,
     send as emailCampaignsSend
 } from './routes/email-campaigns';
+import {
+    index as subscriptionsIndex,
+    dashboard as subscriptionsDashboard,
+    checkout as subscriptionsCheckout,
+    success as subscriptionsSuccess,
+    cancel as subscriptionsCancel,
+    destroy as subscriptionsDestroy
+} from './routes/subscriptions';
 
 // Route name to function mapping
 const routeMap: Record<string, any> = {
@@ -56,17 +61,14 @@ const routeMap: Record<string, any> = {
 
     // Email Template routes
     'email-template.index': emailTemplateIndex,
-    'email-template.create': emailTemplateCreate,
     'email-template.store': emailTemplateStore,
     'email-template.show': emailTemplateShow,
-    'email-template.edit': emailTemplateEdit,
     'email-template.update': emailTemplateUpdate,
     'email-template.destroy': emailTemplateDestroy,
 
     // Base Template routes
     'base.template': baseTemplateIndex,
     'base.template.view': baseTemplateView,
-    'use.template': useRoutes.template,
 
     // Groups routes
     'groups.index': groupsIndex,
@@ -89,6 +91,23 @@ const routeMap: Record<string, any> = {
     'email-campaigns.update': emailCampaignsUpdate,
     'email-campaigns.destroy': emailCampaignsDestroy,
     'email-campaigns.send': emailCampaignsSend,
+
+    // Subscription routes
+    'subscriptions.index': subscriptionsIndex,
+    'subscriptions.dashboard': subscriptionsDashboard,
+    'subscriptions.checkout': subscriptionsCheckout,
+    'subscriptions.success': subscriptionsSuccess,
+    'subscriptions.cancel': subscriptionsCancel,
+    'subscriptions.destroy': subscriptionsDestroy,
+
+    // Plan management routes
+    'plans.index': { url: () => '/plans' },
+    'plans.create': { url: () => '/plans/create' },
+    'plans.store': { url: () => '/plans' },
+    'plans.show': { url: (params: { subscriptionPlan: number }) => `/plans/${params.subscriptionPlan}` },
+    'plans.edit': { url: (params: { subscriptionPlan: number }) => `/plans/${params.subscriptionPlan}/edit` },
+    'plans.update': { url: (params: { subscriptionPlan: number }) => `/plans/${params.subscriptionPlan}` },
+    'plans.destroy': { url: (params: { subscriptionPlan: number }) => `/plans/${params.subscriptionPlan}` },
 };
 
 // Global route helper function

@@ -4,7 +4,13 @@ import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, FileText, MailCheck, TrendingUp, Users as UsersIcon } from 'lucide-react';
+import { AlertTriangle, FileText, MailCheck, TrendingUp, Users as UsersIcon, CreditCard, AlertCircle } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Link } from '@inertiajs/react';
+import { route } from '@/route-helper';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -24,6 +30,28 @@ type PageProps = {
     timeseries: TimeseriesPoint[];
     topTemplates: { id: number; name: string; sent: number }[];
     recentEmails: { id: number; email: string; subject: string; status: string; created_at: string | null }[];
+    subscription: {
+        current: {
+            id: number;
+            subscription_plan: {
+                name: string;
+                price: number;
+                currency: string;
+                interval: string;
+            };
+            status: string;
+        } | null;
+        limits: {
+            templates: number;
+            contacts: number;
+            emails_per_month: number;
+        };
+        usage: {
+            templates: number;
+            contacts: number;
+            emails_this_month: number;
+        };
+    };
 };
 
 function numberFormat(n: number) {
@@ -103,6 +131,38 @@ export default function Dashboard() {
     const series = props.timeseries ?? [];
     const sentArr = series.map((d) => d.sent);
     const failArr = series.map((d) => d.failed);
+    const subscription = props.subscription;
+
+    const getUsagePercentage = (used: number, limit: number) => {
+        if (limit === 0) return 0; // Unlimited
+        return Math.min((used / limit) * 100, 100);
+    };
+
+    const getUsageColor = (percentage: number) => {
+        if (percentage >= 90) return 'text-red-500';
+        if (percentage >= 75) return 'text-yellow-500';
+        return 'text-green-500';
+    };
+
+    const getProgressColor = (percentage: number) => {
+        if (percentage >= 90) return 'bg-red-500';
+        if (percentage >= 75) return 'bg-yellow-500';
+        return 'bg-green-500';
+    };
+
+    const isNearLimit = (used: number, limit: number) => {
+        if (limit === 0) return false; // Unlimited
+        return (used / limit) >= 0.9;
+    };
+
+    const isOverLimit = (used: number, limit: number) => {
+        if (limit === 0) return false; // Unlimited
+        return used > limit;
+    };
+
+    const formatLimit = (limit: number) => {
+        return limit === 0 ? 'Unlimited' : limit.toLocaleString();
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -163,6 +223,133 @@ export default function Dashboard() {
                         </CardHeader>
                     </Card>
                 </div>
+
+                {/* Subscription Progress */}
+                <Card>
+                    <CardHeader>
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <CardTitle className="flex items-center gap-2">
+                                    <CreditCard className="w-5 h-5" />
+                                    Plan Usage
+                                </CardTitle>
+                                <CardDescription>
+                                    {subscription.current ?
+                                        `Current Plan: ${subscription.current.subscription_plan.name}` :
+                                        'You are on the free plan'
+                                    }
+                                </CardDescription>
+                            </div>
+                            <Button variant="outline" size="sm" asChild>
+                                <Link href={route('subscriptions.dashboard')}>
+                                    Manage Subscription
+                                </Link>
+                            </Button>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {/* Templates Usage */}
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-sm">
+                                    <span className="flex items-center gap-2">
+                                        <FileText className="w-4 h-4" />
+                                        Templates
+                                    </span>
+                                    <span className={getUsageColor(getUsagePercentage(subscription.usage.templates, subscription.limits.templates))}>
+                                        {subscription.usage.templates.toLocaleString()} / {formatLimit(subscription.limits.templates)}
+                                    </span>
+                                </div>
+                                <Progress
+                                    value={getUsagePercentage(subscription.usage.templates, subscription.limits.templates)}
+                                    className="h-2"
+                                />
+                                {isOverLimit(subscription.usage.templates, subscription.limits.templates) && (
+                                    <Alert className="py-2">
+                                        <AlertCircle className="h-4 w-4" />
+                                        <AlertDescription className="text-xs">
+                                            Template limit exceeded!
+                                        </AlertDescription>
+                                    </Alert>
+                                )}
+                                {isNearLimit(subscription.usage.templates, subscription.limits.templates) && !isOverLimit(subscription.usage.templates, subscription.limits.templates) && (
+                                    <Alert className="py-2">
+                                        <AlertCircle className="h-4 w-4" />
+                                        <AlertDescription className="text-xs">
+                                            Approaching template limit
+                                        </AlertDescription>
+                                    </Alert>
+                                )}
+                            </div>
+
+                            {/* Contacts Usage */}
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-sm">
+                                    <span className="flex items-center gap-2">
+                                        <UsersIcon className="w-4 h-4" />
+                                        Contacts
+                                    </span>
+                                    <span className={getUsageColor(getUsagePercentage(subscription.usage.contacts, subscription.limits.contacts))}>
+                                        {subscription.usage.contacts.toLocaleString()} / {formatLimit(subscription.limits.contacts)}
+                                    </span>
+                                </div>
+                                <Progress
+                                    value={getUsagePercentage(subscription.usage.contacts, subscription.limits.contacts)}
+                                    className="h-2"
+                                />
+                                {isOverLimit(subscription.usage.contacts, subscription.limits.contacts) && (
+                                    <Alert className="py-2">
+                                        <AlertCircle className="h-4 w-4" />
+                                        <AlertDescription className="text-xs">
+                                            Contact limit exceeded!
+                                        </AlertDescription>
+                                    </Alert>
+                                )}
+                                {isNearLimit(subscription.usage.contacts, subscription.limits.contacts) && !isOverLimit(subscription.usage.contacts, subscription.limits.contacts) && (
+                                    <Alert className="py-2">
+                                        <AlertCircle className="h-4 w-4" />
+                                        <AlertDescription className="text-xs">
+                                            Approaching contact limit
+                                        </AlertDescription>
+                                    </Alert>
+                                )}
+                            </div>
+
+                            {/* Emails Usage */}
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-sm">
+                                    <span className="flex items-center gap-2">
+                                        <MailCheck className="w-4 h-4" />
+                                        Emails This Month
+                                    </span>
+                                    <span className={getUsageColor(getUsagePercentage(subscription.usage.emails_this_month, subscription.limits.emails_per_month))}>
+                                        {subscription.usage.emails_this_month.toLocaleString()} / {formatLimit(subscription.limits.emails_per_month)}
+                                    </span>
+                                </div>
+                                <Progress
+                                    value={getUsagePercentage(subscription.usage.emails_this_month, subscription.limits.emails_per_month)}
+                                    className="h-2"
+                                />
+                                {isOverLimit(subscription.usage.emails_this_month, subscription.limits.emails_per_month) && (
+                                    <Alert className="py-2">
+                                        <AlertCircle className="h-4 w-4" />
+                                        <AlertDescription className="text-xs">
+                                            Monthly email limit exceeded!
+                                        </AlertDescription>
+                                    </Alert>
+                                )}
+                                {isNearLimit(subscription.usage.emails_this_month, subscription.limits.emails_per_month) && !isOverLimit(subscription.usage.emails_this_month, subscription.limits.emails_per_month) && (
+                                    <Alert className="py-2">
+                                        <AlertCircle className="h-4 w-4" />
+                                        <AlertDescription className="text-xs">
+                                            Approaching monthly email limit
+                                        </AlertDescription>
+                                    </Alert>
+                                )}
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
 
                 {/* Trend + Breakdown */}
                 <div className="grid gap-4 lg:grid-cols-3">

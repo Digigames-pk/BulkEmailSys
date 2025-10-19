@@ -48,8 +48,36 @@ class ContactController extends Controller
             'mobile' => ['nullable', 'string', 'max:50'],
             'gender' => ['nullable', 'string', 'max:50'],
         ]);
+
+        // Check contact limit
+        $user = Auth::user();
+        $limits = $user->getSubscriptionLimits();
+        $currentContactCount = $user->contacts()->count();
+
+        if ($limits['contacts'] > 0 && $currentContactCount >= $limits['contacts']) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => 'Contact limit reached',
+                    'message' => "You've reached your limit of {$limits['contacts']} contacts. Please upgrade your plan to add more contacts.",
+                    'limit_reached' => true,
+                    'limit_type' => 'contacts',
+                    'current_usage' => $currentContactCount,
+                    'limit' => $limits['contacts']
+                ], 403);
+            }
+
+            return redirect()->back()->with('error', "You've reached your limit of {$limits['contacts']} contacts. Please upgrade your plan to add more contacts.");
+        }
+
         $validated['user_id'] = Auth::id();
         Contact::create($validated);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Contact created successfully.'
+            ]);
+        }
 
         return redirect()->route('contacts.index')->with('success', 'Contact created successfully.');
     }

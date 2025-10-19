@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, ArrowRight, FileText, Palette, Plus, Eye, Check } from 'lucide-react';
 import { router } from '@inertiajs/react';
 import EmailEditor, { EditorRef } from 'react-email-editor';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
 import '../../../../css/emailtemplate.css';
 
 interface BaseTemplate {
@@ -30,6 +31,26 @@ interface EmailTemplate {
     thumbnail: string | null;
 }
 
+interface SubscriptionPlan {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    currency: string;
+    interval: string;
+    max_templates: number;
+    max_contacts: number;
+    max_emails_per_month: number;
+    is_featured: boolean;
+    features: string[];
+}
+
+interface UserSubscription {
+    id: number;
+    subscription_plan_id: number;
+    subscription_plan: SubscriptionPlan;
+}
+
 interface WizardData {
     name: string;
     from_name: string;
@@ -49,6 +70,18 @@ interface Step2Props {
     updateData: (data: Partial<WizardData>) => void;
     baseTemplates: BaseTemplate[];
     emailTemplates: EmailTemplate[];
+    limits: {
+        templates: number;
+        contacts: number;
+        emails_per_month: number;
+    };
+    usage: {
+        templates: number;
+        contacts: number;
+        emails_this_month: number;
+    };
+    plans: SubscriptionPlan[];
+    currentSubscription: UserSubscription | null;
     onNext: () => void;
     onPrev: () => void;
 }
@@ -58,6 +91,10 @@ export default function Step2TemplateSelection({
     updateData,
     baseTemplates,
     emailTemplates,
+    limits,
+    usage,
+    plans,
+    currentSubscription,
     onNext,
     onPrev
 }: Step2Props) {
@@ -69,6 +106,14 @@ export default function Step2TemplateSelection({
     const [previewTemplate, setPreviewTemplate] = useState<BaseTemplate | null>(null);
     const [isSavingTemplate, setIsSavingTemplate] = useState(false);
     const emailEditorRef = useRef<EditorRef>(null);
+
+    // Plan limits hook
+    const { handleTemplateAction, UpgradeModalComponent } = usePlanLimits({
+        currentSubscription,
+        limits,
+        usage,
+        plans
+    });
 
     const handleTemplateTypeChange = (type: 'base' | 'existing' | 'scratch') => {
         updateData({
@@ -89,64 +134,66 @@ export default function Step2TemplateSelection({
             return;
         }
 
-        setIsLoading(true);
-        try {
-            // Find the base template to get its content
-            const baseTemplate = baseTemplates.find(t => t.id === baseTemplateId);
-            if (!baseTemplate) {
+        handleTemplateAction(async () => {
+            setIsLoading(true);
+            try {
+                // Find the base template to get its content
+                const baseTemplate = baseTemplates.find(t => t.id === baseTemplateId);
+                if (!baseTemplate) {
+                    toast({
+                        title: "Template Not Found",
+                        description: "Base template not found",
+                        variant: "destructive",
+                    });
+                    setIsLoading(false);
+                    return;
+                }
+
+                // Create template using the existing API route
+                const response = await fetch('/api/email-templates', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    },
+                    body: JSON.stringify({
+                        name: templateName,
+                        email_subject: templateSubject || data.subject,
+                        editor_content: baseTemplate.editor_content ? btoa(baseTemplate.editor_content) : '',
+                        mail_content: baseTemplate.mail_content ? btoa(baseTemplate.mail_content) : '',
+                    }),
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    updateData({
+                        selected_base_template_id: baseTemplateId,
+                        created_template_id: result.data.id,
+                    });
+                    toast({
+                        title: "Template Created",
+                        description: "Template created successfully! You can now proceed to the next step.",
+                        variant: "success",
+                    });
+                } else {
+                    toast({
+                        title: "Template Creation Failed",
+                        description: result.message || 'Unknown error',
+                        variant: "destructive",
+                    });
+                }
+            } catch (error) {
+                console.error('Error creating template:', error);
                 toast({
-                    title: "Template Not Found",
-                    description: "Base template not found",
+                    title: "Error",
+                    description: "Error creating template",
                     variant: "destructive",
                 });
+            } finally {
                 setIsLoading(false);
-                return;
             }
-
-            // Create template using the existing API route
-            const response = await fetch('/api/email-templates', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                },
-                body: JSON.stringify({
-                    name: templateName,
-                    email_subject: templateSubject || data.subject,
-                    editor_content: baseTemplate.editor_content ? btoa(baseTemplate.editor_content) : '',
-                    mail_content: baseTemplate.mail_content ? btoa(baseTemplate.mail_content) : '',
-                }),
-            });
-
-            const result = await response.json();
-            if (result.success) {
-                updateData({
-                    selected_base_template_id: baseTemplateId,
-                    created_template_id: result.data.id,
-                });
-                toast({
-                    title: "Template Created",
-                    description: "Template created successfully! You can now proceed to the next step.",
-                    variant: "success",
-                });
-            } else {
-                toast({
-                    title: "Template Creation Failed",
-                    description: result.message || 'Unknown error',
-                    variant: "destructive",
-                });
-            }
-        } catch (error) {
-            console.error('Error creating template:', error);
-            toast({
-                title: "Error",
-                description: "Error creating template",
-                variant: "destructive",
-            });
-        } finally {
-            setIsLoading(false);
-        }
+        });
     };
 
     const handleExistingTemplateSelect = (templateId: number) => {
@@ -497,6 +544,9 @@ export default function Step2TemplateSelection({
                     </div>
                 </DialogContent>
             </Dialog>
+
+            {/* Upgrade Modal */}
+            <UpgradeModalComponent />
         </>
     );
 }
