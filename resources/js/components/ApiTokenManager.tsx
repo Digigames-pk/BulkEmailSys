@@ -58,6 +58,7 @@ const ApiTokenManager: React.FC<ApiTokenManagerProps> = ({ onTokenSet }) => {
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                 },
                 body: JSON.stringify({ email }),
             });
