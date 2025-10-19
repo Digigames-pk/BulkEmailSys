@@ -4,6 +4,7 @@ import { router, Head } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { redirectAfterApiCall } from '@/utils/redirect';
 import '../../../css/emailtemplate.css';
 
 interface EmailTemplate {
@@ -114,10 +115,15 @@ const Edit = ({ emailTemplate }: Props) => {
 
     const submitFormData = async (formData: FormData) => {
         try {
+            // Get CSRF token from meta tag
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
             const response = await fetch(`/api/email-templates/${emailTemplate.id}`, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
+                    'X-CSRF-TOKEN': token || '',
+                    'X-Requested-With': 'XMLHttpRequest',
                 },
                 body: formData,
             });
@@ -125,7 +131,8 @@ const Edit = ({ emailTemplate }: Props) => {
             const result = await response.json();
 
             if (response.ok && result.success) {
-                router.visit(route('email-template.index'));
+                // Use utility function for redirect after API call
+                redirectAfterApiCall('/email-template');
             } else {
                 // Handle API errors
                 if (result.errors) {

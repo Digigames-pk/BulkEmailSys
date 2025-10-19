@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, ArrowRight, Check, Wand2 } from 'lucide-react';
+import { redirectAfterApiCall } from '@/utils/redirect';
 import Step1CampaignDetails from './Steps/Step1CampaignDetails';
 import Step2TemplateSelection from './Steps/Step2TemplateSelection';
 import Step3RecipientsSelection from './Steps/Step3RecipientsSelection';
@@ -147,8 +148,8 @@ export default function CampaignWizard({ baseTemplates, emailTemplates, groups }
                     description: result.message || 'Campaign created successfully!',
                     variant: "success",
                 });
-                // Redirect to email campaigns page on success
-                router.visit('/email-campaigns');
+                // Use utility function for redirect after API call
+                redirectAfterApiCall('/email-campaigns');
             } else {
                 console.error('Campaign creation failed:', result);
                 toast({

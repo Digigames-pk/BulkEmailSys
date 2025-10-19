@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import EmailEditor, { EditorRef } from 'react-email-editor';
 import { Head, router, useForm } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
+import { redirectAfterApiCall } from '@/utils/redirect';
 import '../../../css/emailtemplate.css';
 
 // Interface removed as it's not used in this component
@@ -62,12 +63,17 @@ const Create = () => {
                 formData.append('csv_file', data.csv_file);
             }
 
-            // Make API request using fetch (no authentication required)
+            // Make API request using fetch with CSRF token
             try {
+                // Get CSRF token from meta tag
+                const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
                 const response = await fetch('/api/email-templates', {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',
+                        'X-CSRF-TOKEN': token || '',
+                        'X-Requested-With': 'XMLHttpRequest',
                     },
                     body: formData,
                 });
@@ -76,7 +82,8 @@ const Create = () => {
 
                 if (response.ok && result.success) {
                     reset();
-                    router.visit(route('email-template.index'));
+                    // Use utility function for redirect after API call
+                    redirectAfterApiCall('/email-template');
                 } else {
                     // Handle API errors
                     if (result.errors) {
