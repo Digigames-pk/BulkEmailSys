@@ -44,7 +44,7 @@ class ContactController extends Controller
     {
         $validated = $request->validate([
             'name'   => ['nullable', 'string', 'max:255'],
-            'email'  => ['required', 'email', 'max:255'],
+            'email'  => ['required', 'email', 'max:255', 'unique:contacts,email,NULL,id,user_id,' . Auth::id()],
             'mobile' => ['nullable', 'string', 'max:50'],
             'gender' => ['nullable', 'string', 'max:50'],
         ]);
@@ -71,7 +71,7 @@ class ContactController extends Controller
 
         $validated = $request->validate([
             'name'   => ['nullable', 'string', 'max:255'],
-            'email'  => ['required', 'email', 'max:255'],
+            'email'  => ['required', 'email', 'max:255', 'unique:contacts,email,NULL,id,user_id,' . Auth::id()],
             'mobile' => ['nullable', 'string', 'max:50'],
             'gender' => ['nullable', 'string', 'max:50'],
         ]);
