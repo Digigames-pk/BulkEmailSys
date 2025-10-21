@@ -3,6 +3,7 @@ import EmailEditor, { EditorRef } from 'react-email-editor';
 import { Head, router, useForm } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { redirectAfterApiCall } from '@/utils/redirect';
+import { apiRequest } from '@/utils/csrf';
 import '../../../css/emailtemplate.css';
 
 // Interface removed as it's not used in this component
@@ -65,16 +66,8 @@ const Create = () => {
 
             // Make API request using fetch with CSRF token
             try {
-                // Get CSRF token from meta tag
-                const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-
-                const response = await fetch('/api/email-templates', {
+                const response = await apiRequest('/api/email-templates', {
                     method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': token || '',
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
                     body: formData,
                 });
 

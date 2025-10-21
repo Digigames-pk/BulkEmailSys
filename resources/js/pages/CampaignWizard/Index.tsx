@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, ArrowRight, Check, Wand2 } from 'lucide-react';
 import { redirectAfterApiCall } from '@/utils/redirect';
+import { apiRequest } from '@/utils/csrf';
 import Step1CampaignDetails from './Steps/Step1CampaignDetails';
 import Step2TemplateSelection from './Steps/Step2TemplateSelection';
 import Step3RecipientsSelection from './Steps/Step3RecipientsSelection';
@@ -129,12 +130,10 @@ export default function CampaignWizard({ baseTemplates, emailTemplates, groups }
             };
 
             // Use fetch instead of router.post to handle JSON response
-            const response = await fetch('/campaign-wizard/create-campaign', {
+            const response = await apiRequest('/campaign-wizard/create-campaign', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                 },
                 body: JSON.stringify(campaignData),
             });

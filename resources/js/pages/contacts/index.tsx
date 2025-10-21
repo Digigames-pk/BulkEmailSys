@@ -9,6 +9,7 @@ import CreateEditModal from "./CreateEditModal";
 import ConfirmDeleteDialog from "./ConfirmDeleteDialog";
 import CsvImportModal from "./CsvImportModal";
 import { Upload } from "lucide-react";
+import { apiRequest } from "@/utils/csrf";
 
 export default function Index({ contacts, filters }: any) {
     const [search, setSearch] = useState(filters.search || "");
@@ -63,12 +64,8 @@ export default function Index({ contacts, filters }: any) {
         formData.append('csv_file', file);
 
         // Use fetch instead of Inertia form for file uploads
-        fetch('/contacts/import-csv', {
+        apiRequest('/contacts/import-csv', {
             method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                'Accept': 'application/json',
-            },
             body: formData,
         })
             .then(response => response.json())

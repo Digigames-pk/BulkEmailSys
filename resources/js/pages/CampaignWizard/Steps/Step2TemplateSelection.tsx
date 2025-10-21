@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, ArrowRight, FileText, Palette, Plus, Eye, Check } from 'lucide-react';
 import { router } from '@inertiajs/react';
 import EmailEditor, { EditorRef } from 'react-email-editor';
+import { apiRequest, safeBase64Encode } from '@/utils/csrf';
 import '../../../../css/emailtemplate.css';
 
 interface BaseTemplate {
@@ -104,18 +105,16 @@ export default function Step2TemplateSelection({
             }
 
             // Create template using the existing API route
-            const response = await fetch('/api/email-templates', {
+            const response = await apiRequest('/api/email-templates', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                 },
                 body: JSON.stringify({
                     name: templateName,
                     email_subject: templateSubject || data.subject,
-                    editor_content: baseTemplate.editor_content ? btoa(baseTemplate.editor_content) : '',
-                    mail_content: baseTemplate.mail_content ? btoa(baseTemplate.mail_content) : '',
+                    editor_content: baseTemplate.editor_content ? safeBase64Encode(baseTemplate.editor_content) : '',
+                    mail_content: baseTemplate.mail_content ? safeBase64Encode(baseTemplate.mail_content) : '',
                 }),
             });
 
@@ -182,18 +181,16 @@ export default function Step2TemplateSelection({
                     const { html } = data;
 
                     // Create template using the existing API route
-                    fetch('/api/email-templates', {
+                    apiRequest('/api/email-templates', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                         },
                         body: JSON.stringify({
                             name: templateName,
                             email_subject: templateSubject || data.subject,
-                            editor_content: btoa(JSON.stringify(design)), // Base64 encode
-                            mail_content: btoa(html), // Base64 encode
+                            editor_content: safeBase64Encode(JSON.stringify(design)), // Base64 encode
+                            mail_content: safeBase64Encode(html), // Base64 encode
                         }),
                     })
                         .then(response => response.json())

@@ -5,6 +5,7 @@ import AppLayout from '@/layouts/app-layout';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { redirectAfterApiCall } from '@/utils/redirect';
+import { apiRequest } from '@/utils/csrf';
 import '../../../css/emailtemplate.css';
 
 interface EmailTemplate {
@@ -115,16 +116,8 @@ const Edit = ({ emailTemplate }: Props) => {
 
     const submitFormData = async (formData: FormData) => {
         try {
-            // Get CSRF token from meta tag
-            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-
-            const response = await fetch(`/api/email-templates/${emailTemplate.id}`, {
+            const response = await apiRequest(`/api/email-templates/${emailTemplate.id}`, {
                 method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': token || '',
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
                 body: formData,
             });
 

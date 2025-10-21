@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/utils/csrf';
 
 interface ApiTokenManagerProps {
     onTokenSet?: (token: string) => void;
@@ -53,12 +54,10 @@ const ApiTokenManager: React.FC<ApiTokenManagerProps> = ({ onTokenSet }) => {
         if (!email) return;
 
         try {
-            const response = await fetch('/api/generate-token', {
+            const response = await apiRequest('/api/generate-token', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                 },
                 body: JSON.stringify({ email }),
             });
