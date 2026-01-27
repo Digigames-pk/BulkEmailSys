@@ -38,7 +38,7 @@ export default function Landing() {
                         <h1 className="mt-4 text-4xl md:text-6xl font-bold leading-tight tracking-tight">{t('send_smarter_campaigns')}</h1>
                         <p className="mt-5 text-muted-foreground text-lg leading-relaxed">{t('simple_csv_imports')}</p>
                         <div className="mt-8 flex items-center gap-3">
-                            <a href="/register" className="inline-flex items-center justify-center rounded bg-primary text-primary-foreground px-5 py-3 font-medium">{t('get_started')}</a>
+                            <a href="/login" className="inline-flex items-center justify-center rounded bg-primary text-primary-foreground px-5 py-3 font-medium">{t('get_started')}</a>
                             <a href="#how" className="inline-flex items-center justify-center rounded border px-5 py-3 font-medium">{t('see_how_it_works')}</a>
                         </div>
                         <div className="mt-10">
@@ -119,7 +119,7 @@ export default function Landing() {
                                 <li>Basic templates</li>
                                 <li>Email support</li>
                             </ul>
-                            <a href="/register" className="mt-6 inline-flex items-center justify-center rounded border px-4 py-2 font-medium">Get started</a>
+                            <a href="/login" className="mt-6 inline-flex items-center justify-center rounded border px-4 py-2 font-medium">Get started</a>
                         </div>
                         <div className="p-6 rounded-xl border bg-card ring-1 ring-ring">
                             <div className="text-sm font-medium">Growth</div>
@@ -129,7 +129,7 @@ export default function Landing() {
                                 <li>Advanced templates</li>
                                 <li>Priority support</li>
                             </ul>
-                            <a href="/register" className="mt-6 inline-flex items-center justify-center rounded bg-primary text-primary-foreground px-4 py-2 font-medium">Start free trial</a>
+                            <a href="/login" className="mt-6 inline-flex items-center justify-center rounded bg-primary text-primary-foreground px-4 py-2 font-medium">Start free trial</a>
                         </div>
                         <div className="p-6 rounded-xl border bg-card">
                             <div className="text-sm font-medium">Scale</div>
@@ -170,8 +170,7 @@ export default function Landing() {
                     <h2 className="text-2xl md:text-3xl font-bold">Ready to send smarter campaigns?</h2>
                     <p className="mt-2 text-muted-foreground">Join MailNow today and reach your audience with confidence.</p>
                     <div className="mt-6 flex items-center justify-center gap-3">
-                        <a href="/register" className="inline-flex items-center justify-center rounded bg-primary text-primary-foreground px-6 py-3 font-medium">Create account</a>
-                        <a href="/login" className="inline-flex items-center justify-center rounded border px-6 py-3 font-medium">Sign in</a>
+                        <a href="/login" className="inline-flex items-center justify-center rounded bg-primary text-primary-foreground px-6 py-3 font-medium">Sign in</a>
                     </div>
                 </section>
             </main>
