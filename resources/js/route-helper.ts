@@ -3,8 +3,7 @@ import {
     home,
     dashboard,
     login,
-    logout,
-    register
+    logout
 } from './routes';
 import {
     index as emailTemplateIndex,
@@ -52,7 +51,6 @@ const routeMap: Record<string, any> = {
     'dashboard': dashboard,
     'login': login,
     'logout': logout,
-    'register': register,
 
     // Email Template routes
     'email-template.index': emailTemplateIndex,
