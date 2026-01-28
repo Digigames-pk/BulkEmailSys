@@ -3,18 +3,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Upload, FileText, AlertCircle } from 'lucide-react';
+import { Upload, FileText, AlertCircle, Download } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface CsvImportModalProps {
     open: boolean;
     onClose: () => void;
-    onImport: (file: File) => void;
+    onImport: (file: File, groupId?: number | null) => void;
     processing?: boolean;
+    groups?: Array<{ id: number; name: string }>;
 }
 
-export default function CsvImportModal({ open, onClose, onImport, processing = false }: CsvImportModalProps) {
+export default function CsvImportModal({ open, onClose, onImport, processing = false, groups = [] }: CsvImportModalProps) {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [dragActive, setDragActive] = useState(false);
+    const [selectedGroupId, setSelectedGroupId] = useState<string>('new');
 
     const handleFileSelect = (file: File) => {
         setSelectedFile(file);
@@ -48,13 +51,14 @@ export default function CsvImportModal({ open, onClose, onImport, processing = f
 
     const handleImport = () => {
         if (selectedFile) {
-            onImport(selectedFile);
+            onImport(selectedFile, selectedGroupId === 'new' ? null : Number(selectedGroupId));
             setSelectedFile(null);
         }
     };
 
     const handleClose = () => {
         setSelectedFile(null);
+        setSelectedGroupId('new');
         onClose();
     };
 
@@ -71,6 +75,45 @@ export default function CsvImportModal({ open, onClose, onImport, processing = f
                 <div className="space-y-4">
                     <div className="text-sm text-muted-foreground">
                         Upload any file to import contacts. The file should have columns: name, email, mobile, gender
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                                const link = document.createElement('a');
+                                link.href = '/sample-contacts.csv';
+                                link.download = 'sample-contacts.csv';
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                            }}
+                            className="flex items-center gap-2"
+                        >
+                            <Download className="w-4 h-4" />
+                            Download Sample CSV
+                        </Button>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label>Import into group (optional)</Label>
+                        <Select value={selectedGroupId} onValueChange={setSelectedGroupId}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a group" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="new">Auto-create new group</SelectItem>
+                                {groups.map((g) => (
+                                    <SelectItem key={g.id} value={String(g.id)}>
+                                        {g.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground">
+                            Choose an existing group to import into, or leave as “Auto-create new group”.
+                        </p>
                     </div>
 
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">

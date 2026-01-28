@@ -11,7 +11,7 @@ import CsvImportModal from "./CsvImportModal";
 import { Upload } from "lucide-react";
 import { apiRequest } from "@/utils/csrf";
 
-export default function Index({ contacts, filters }: any) {
+export default function Index({ contacts, filters, groups }: any) {
     const [search, setSearch] = useState(filters.search || "");
     const [selectedContact, setSelectedContact] = useState<any | null>(null);
     const [showCreateEditDialog, setShowCreateEditDialog] = useState(false);
@@ -59,9 +59,12 @@ export default function Index({ contacts, filters }: any) {
         });
     };
 
-    const handleImportCsv = (file: File) => {
+    const handleImportCsv = (file: File, groupId?: number | null) => {
         const formData = new FormData();
         formData.append('csv_file', file);
+        if (groupId) {
+            formData.append('group_id', String(groupId));
+        }
 
         // Use fetch instead of Inertia form for file uploads
         apiRequest('/contacts/import-csv', {
@@ -73,7 +76,9 @@ export default function Index({ contacts, filters }: any) {
                 if (data.success) {
                     setShowImportDialog(false);
                     const message = data.group
-                        ? `${data.message}\n\nGroup created: ${data.group.name}\nDescription: ${data.group.description}`
+                        ? (data.group.created
+                            ? `${data.message}\n\nGroup created: ${data.group.name}\nDescription: ${data.group.description}`
+                            : `${data.message}\n\nImported into group: ${data.group.name}`)
                         : data.message;
                     toast({
                         title: "Import Successful",
@@ -182,6 +187,7 @@ export default function Index({ contacts, filters }: any) {
                 onClose={() => setShowImportDialog(false)}
                 onImport={handleImportCsv}
                 processing={form.processing}
+                groups={groups || []}
             />
         </AppLayout>
     );

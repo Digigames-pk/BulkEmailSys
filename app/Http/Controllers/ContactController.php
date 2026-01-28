@@ -34,6 +34,9 @@ class ContactController extends Controller
         return Inertia::render('contacts/index', [
             'contacts' => $contacts,
             'filters' => $request->only('search'),
+            'groups' => Group::where('user_id', Auth::id())
+                ->orderBy('name')
+                ->get(['id', 'name']),
         ]);
     }
 
@@ -91,6 +94,7 @@ class ContactController extends Controller
     {
         $request->validate([
             'csv_file' => 'required|file',
+            'group_id' => 'nullable|integer',
         ]);
 
         try {
@@ -113,13 +117,30 @@ class ContactController extends Controller
                 ], 400);
             }
 
-            // Create a group for this import
-            $groupName = $this->generateGroupName(Auth::id());
-            $group = Group::create([
-                'name' => $groupName,
-                'description' => 'Auto-created group from CSV import: ' . $file->getClientOriginalName(),
-                'user_id' => Auth::id(),
-            ]);
+            $groupWasCreated = false;
+            $groupId = $request->input('group_id');
+
+            if ($groupId) {
+                $group = Group::where('id', $groupId)
+                    ->where('user_id', Auth::id())
+                    ->first();
+
+                if (!$group) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Selected group not found.',
+                    ], 422);
+                }
+            } else {
+                // Create a group for this import
+                $groupName = $this->generateGroupName(Auth::id());
+                $group = Group::create([
+                    'name' => $groupName,
+                    'description' => 'Auto-created group from CSV import: ' . $file->getClientOriginalName(),
+                    'user_id' => Auth::id(),
+                ]);
+                $groupWasCreated = true;
+            }
 
             Log::info('Created group for CSV import', [
                 'group_id' => $group->id,
@@ -142,11 +163,14 @@ class ContactController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "Contacts imported successfully! Created group: {$group->name}",
+                'message' => $groupWasCreated
+                    ? "Contacts imported successfully! Created group: {$group->name}"
+                    : "Contacts imported successfully! Imported into group: {$group->name}",
                 'group' => [
                     'id' => $group->id,
                     'name' => $group->name,
                     'description' => $group->description,
+                    'created' => $groupWasCreated,
                 ]
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {

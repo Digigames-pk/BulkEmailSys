@@ -41,27 +41,32 @@ class SimpleContactImport implements ToCollection, WithHeadingRow
             // Normalize column names to lowercase for case-insensitive access
             $normalizedRow = [];
             foreach ($row as $key => $value) {
-                // Clean up the key (remove empty spaces and normalize)
+                // Clean up the key (remove empty spaces, punctuation, and normalize)
                 $cleanKey = strtolower(trim($key));
+                // Remove common punctuation and extra spaces
+                $cleanKey = preg_replace('/[^\w\s]/', '', $cleanKey);
+                $cleanKey = preg_replace('/\s+/', ' ', $cleanKey);
+                $cleanKey = trim($cleanKey);
                 // Only add non-empty keys
                 if (!empty($cleanKey)) {
                     $normalizedRow[$cleanKey] = trim($value);
                 }
             }
 
+            // Dynamically find email column (handles: email, email address, emailaddress, etc.)
+            $email = $this->findColumnValue($normalizedRow, [
+                'email',
+                'emailaddress',
+                'email address',
+                'e mail',
+                'e-mail',
+                'mail',
+            ]);
+
             // Skip if email is empty or null
-            if (empty($normalizedRow['email']) || $normalizedRow['email'] === null) {
-                $this->totalFailed++;
-                Log::warning('Skipped row: Email is empty');
-                continue;
-            }
-
-            $email = trim($normalizedRow['email']);
-
-            // Skip if email is still empty after trimming
             if (empty($email)) {
                 $this->totalFailed++;
-                Log::warning('Skipped row: Email is empty after trimming');
+                Log::warning('Skipped row: Email is empty');
                 continue;
             }
 
@@ -85,13 +90,42 @@ class SimpleContactImport implements ToCollection, WithHeadingRow
                     continue;
                 }
 
+                // Dynamically find name column
+                $name = $this->findColumnValue($normalizedRow, [
+                    'name',
+                    'full name',
+                    'fullname',
+                    'contact name',
+                    'contactname',
+                ]);
+
+                // Dynamically find mobile/phone column
+                $mobile = $this->findColumnValue($normalizedRow, [
+                    'mobile',
+                    'phone',
+                    'contact no',
+                    'contactno',
+                    'contact number',
+                    'contactnumber',
+                    'phone number',
+                    'phonenumber',
+                    'tel',
+                    'telephone',
+                ]);
+
+                // Dynamically find gender column
+                $gender = $this->findColumnValue($normalizedRow, [
+                    'gender',
+                    'sex',
+                ]);
+
                 // Create new contact
                 $contact = Contact::create([
                     'email' => $email,
                     'user_id' => $this->userId,
-                    'name' => !empty($normalizedRow['name']) ? $normalizedRow['name'] : $this->extractNameFromEmail($email),
-                    'mobile' => !empty($normalizedRow['mobile']) ? $normalizedRow['mobile'] : null,
-                    'gender' => !empty($normalizedRow['gender']) ? $normalizedRow['gender'] : null,
+                    'name' => !empty($name) ? $name : $this->extractNameFromEmail($email),
+                    'mobile' => !empty($mobile) ? $mobile : null,
+                    'gender' => !empty($gender) ? $gender : null,
                 ]);
 
                 // Assign contact to the group
@@ -111,6 +145,54 @@ class SimpleContactImport implements ToCollection, WithHeadingRow
 
         // Log summary
         Log::info("CSV Import Summary for User {$this->userId}: Total: {$this->totalProcessed}, Imported: {$this->totalImported}, Skipped: {$this->totalSkipped}, Failed: {$this->totalFailed}");
+    }
+
+    /**
+     * Find column value by checking multiple possible column name variations
+     * 
+     * @param array $normalizedRow
+     * @param array $possibleNames
+     * @return string|null
+     */
+    private function findColumnValue(array $normalizedRow, array $possibleNames): ?string
+    {
+        // First, try exact matches
+        foreach ($possibleNames as $name) {
+            if (isset($normalizedRow[$name]) && !empty(trim($normalizedRow[$name]))) {
+                return trim($normalizedRow[$name]);
+            }
+        }
+        
+        // Then, try normalized matches (remove spaces and special chars)
+        foreach ($possibleNames as $name) {
+            $normalizedName = preg_replace('/[^\w]/', '', strtolower($name));
+            
+            foreach ($normalizedRow as $key => $value) {
+                if (empty(trim($value))) {
+                    continue;
+                }
+                
+                // Normalize the key the same way
+                $normalizedKey = preg_replace('/[^\w]/', '', strtolower($key));
+                
+                // Exact normalized match (e.g., "email address" -> "emailaddress" matches "email")
+                if ($normalizedKey === $normalizedName) {
+                    return trim($value);
+                }
+                
+                // Contains match (e.g., "email address" contains "email")
+                if (strlen($normalizedName) >= 3 && strpos($normalizedKey, $normalizedName) !== false) {
+                    return trim($value);
+                }
+                
+                // Reverse contains (e.g., "email" is contained in "emailaddress")
+                if (strlen($normalizedKey) >= 3 && strpos($normalizedName, $normalizedKey) !== false) {
+                    return trim($value);
+                }
+            }
+        }
+        
+        return null;
     }
 
     /**
